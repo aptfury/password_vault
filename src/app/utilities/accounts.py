@@ -7,7 +7,7 @@ import os
 import base64
 import hashlib
 import secrets
-from . import AuthUtilities
+from .authorization import AuthUtilities
 from dotenv import load_dotenv
 from ..models import (
     AccountPublic,

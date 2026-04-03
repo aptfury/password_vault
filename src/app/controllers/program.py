@@ -4,7 +4,7 @@
 
 # ===== IMPORTS =====
 
-from . import AccountsController
+from .accounts import AccountsController
 from input_with_timeout import input_with_timeout
 
 # ===== CONTROLLER =====

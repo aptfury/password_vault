@@ -4,10 +4,10 @@
 
 # ===== IMPORTS =====
 
+import getpass
 from input_with_timeout import input_with_timeout
 from ..models import CreateAccount, AccountPublic, AccountInternal
 from ..utilities import AccountsUtilities
-from ..utilities import account_menu, welcome_authenticated_user, back_to_main_menu
 
 # ===== CONTROLLER =====
 
@@ -27,7 +27,7 @@ class AccountsController:
         email: str = ''
 
         if add_email == 'y':
-            email = input_with_timeout('Enter an email: ', timeout=10)
+            email = getpass.getpass(input_with_timeout('Enter an email: ', timeout=10))
 
         new_account: CreateAccount = CreateAccount(
             username=username,
