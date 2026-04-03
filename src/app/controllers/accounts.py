@@ -22,12 +22,12 @@ class AccountsController:
 
     def register_new_account(self):
         username: str = input_with_timeout('Enter a username: ', timeout=10)
-        password: str = input_with_timeout('Enter a password: ', timeout=10)
+        password: str = getpass.getpass(input_with_timeout('Enter a password: ', timeout=10))
         add_email: str = input_with_timeout('Would you like to enter an email [y/n]? ', timeout=10)
         email: str = ''
 
         if add_email == 'y':
-            email = getpass.getpass(input_with_timeout('Enter an email: ', timeout=10))
+            email = input_with_timeout('Enter an email: ', timeout=10)
 
         new_account: CreateAccount = CreateAccount(
             username=username,
