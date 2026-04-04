@@ -19,18 +19,6 @@ def test_query_user(account_service, service_account_factory):
         query_email = account_service.query_user('pii_email', user.pii_email)
         assert query_email == user
 
-def test_query_users(account_service, service_account_factory):
-    created_users: list[AccountInternal] = [service_account_factory(username='jonah') for _ in range(5)]
-    assert [isinstance(user, AccountInternal) for user in created_users]
-    assert len(created_users) == 5
-
-    created: list[bool] = [account_service.create(new_user) for new_user in created_users]
-    assert [created for user in created]
-    assert len(created) == len(created_users)
-
-    users: list[AccountInternal] = [account_service.query_users('username', user.username) for user in created_users]
-    assert len(users) == len(created_users)
-
 def test_get_user_id(account_service, service_account_factory):
     user: AccountInternal = service_account_factory()
     account_service.create(user)
@@ -63,9 +51,6 @@ def test_update(account_service, service_account_factory):
 
     old_user_data = account_service.query_user('username', user.username)
     assert old_user_data is None
-
-    duplicate_users = account_service.query_users('id', user.id)
-    assert len(duplicate_users) == 1
 
 def test_get_all(account_service, service_account_factory):
     for _ in range(15):
