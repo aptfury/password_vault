@@ -78,7 +78,7 @@ class AccountService:
 
         return None # no user found
 
-    def query_users(self, field: str, search: str, limit: int | None = None) -> list[AccountInternal] | None:
+    def query_users(self, field: str, search: str) -> list[AccountInternal] | None:
         '''
         Finds a list of accounts based on query
 
@@ -102,10 +102,9 @@ class AccountService:
             if search.lower() == getattr(account, field).lower():
                 users.append(account)
 
-                if limit is not None and len(users) >= limit:
-                    break
-
         return users
+
+
 
     def internal_find_all_users(self) -> list[AccountInternal] | None:
         '''
