@@ -32,13 +32,19 @@ def storage(tmp_path):
     return service # return storage service instance
 
 @pytest.fixture
-def mock_storage():
+def mock_storage(tmp_path):
+    # directory
+    mock_path = tmp_path / 'mock_storage.json'
+
     # create mock storage environment
     mock = MagicMock(spec=StorageService)
+    mock_path.write_text('[]')
 
     # defaults
     mock.read_file.return_value = []
+    mock.construct_path.return_value = mock_path
     mock.create_if_missing.return_value = True
+    mock.full_path = mock_path
 
     return mock
 

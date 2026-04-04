@@ -5,7 +5,7 @@
 # ===== IMPORTS =====
 
 import json
-from ..models import AccountInternal, AccountPublic
+from ..models import AccountInternal, AccountPublic, AccountStatus
 from ..services import StorageService
 
 
@@ -16,8 +16,16 @@ class AccountService:
         self.service = storage
         self.file_path = self.service.construct_path()
         self.valid_path = self.service.create_if_missing()
+        self.__load = self.service.read_file
+        self.__save = self.service.save_file
 
-    def create_new_account(self, new_user: AccountInternal) -> bool | None:
+    def __fetch_accounts(self) -> list[AccountInternal]:
+        data = self.__load(self.file_path)
+        accounts: list[AccountInternal] = [AccountInternal.model_validate(account) for account in data]
+
+        return accounts
+
+    def create(self, new_user: AccountInternal) -> bool | None:
         '''
         Creates a new account and adds it to the database.
 
@@ -27,18 +35,17 @@ class AccountService:
 
         if self.valid_path:
             # load data
-            with open(self.file_path, 'r') as file:
-                try:
-                    data = json.load(file)
-                except json.JSONDecodeError:
-                    data = [] # catch no data
+            accounts: list[AccountInternal] = self.__fetch_accounts()
+
+            # make user the admin if they are the first account
+            if len(accounts) == 0:
+                new_user.status = AccountStatus.ADMIN
 
             # add user to data
-            data.append(new_user.model_dump())
+            accounts.append(new_user.model_dump(mode='json'))
 
             # write data
-            with open(self.file_path, 'w') as file:
-                json.dump(data, file, indent=4)
+            self.__save(self.file_path, accounts)
 
             return True
         else:
@@ -113,7 +120,7 @@ class AccountService:
                 if account.username.lower() == username.lower():
                     user_account = account
 
-            data.remove(user_account.model_dump()) # remove user from data
+            data.remove(user_account.model_dump(mode='json')) # remove user from data
 
             # save data
             with open(self.file_path, 'w') as file:
