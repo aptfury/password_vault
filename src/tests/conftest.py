@@ -48,6 +48,8 @@ def account_util(account_service):
     utils = AccountUtil()
     utils.service = account_service
 
+    return utils
+
 # ============================
 
 # ===== MODEL FIXTURES =====
