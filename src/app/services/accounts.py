@@ -13,6 +13,12 @@ class AccountsService:
         self.service = FileManagementService('vault', 'accounts')
         self.file_path = self.service.construct_path()
         self.valid_path = self.service.create_if_missing()
+        self.__load = self.service.read_file
+        self.__save = self.service.save_file
+
+    def __fetch_accounts(self) -> list[AccountInternal] | None:
+        data = self.__load(self.file_path)
+        return [AccountInternal.model_validate(acc) for acc in data]
 
     def create_new_account(self, new_user: AccountInternal) -> bool | None:
         '''
@@ -23,22 +29,21 @@ class AccountsService:
         '''
 
         if self.valid_path:
-            # load data
-            with open(self.file_path, 'r') as file:
-                try:
-                    data = json.load(file)
-                except json.JSONDecodeError:
-                    data = [] # catch no data
+            accounts: list[AccountInternal] = self.__fetch_accounts()
 
-            if len(data) == 0:
+            if any(new_user.username.lower() == user.username.lower() for user in accounts):
+                print('This username is already in use. Please register again with a different username.')
+                return False
+
+            if len(accounts) == 0:
                 new_user.status = AccountStatus.ADMIN
+                print('As the first user, you have been made the admin of this instance.')
 
             # add user to data
-            data.append(new_user.model_dump())
+            accounts.append(new_user)
 
             # write data
-            with open(self.file_path, 'w') as file:
-                json.dump(data, file, indent=4)
+            self.__save(self.file_path, accounts)
 
             return True
         else:
@@ -62,16 +67,10 @@ class AccountsService:
             return False # todo - add an access denied response that tells the application to exit
 
         if self.valid_path:
-            with open(self.file_path, 'r') as file:
-                try:
-                    data = json.load(file)
-                except json.JSONDecodeError:
-                    data = []
+            accounts: list[AccountInternal] = self.__fetch_accounts()
 
-            if len(data) == 0:
+            if len(accounts) == 0:
                 return None
-
-            accounts: list[AccountInternal] = [AccountInternal.model_validate(acc) for acc in data]
 
             for i, user in enumerate(accounts):
                 if user.username.lower() == username.lower():
@@ -92,9 +91,7 @@ class AccountsService:
                         print('ERROR: Only users and admin can edit accounts')
                         return None
 
-            with open(self.file_path, 'w') as file:
-                updates: list = [acc.model_dump() for acc in accounts]
-                json.dump(updates, file, indent=4)
+            self.__save(self.file_path, accounts)
 
             return True
         else:
@@ -117,30 +114,23 @@ class AccountsService:
 
         if self.valid_path:
             # load data
-            with open(self.file_path, 'r') as file:
-                data = json.load(file)
+            accounts: list[AccountInternal] = self.__fetch_accounts()
 
-            if len(data) == 0:
+            if len(accounts) == 0:
                 return None
 
-            user_account: AccountPublic | AccountInternal | None = None
-            user_accounts: list[AccountPublic | AccountInternal] = []
+            for user in accounts:
+                if username.lower() == user.username.lower():
+                    if status == AccountStatus.ADMIN:
+                        return user
 
-            # todo - test user_account.append() implementation
-            if status == AccountStatus.ADMIN:
-                user_accounts.append(*[AccountInternal.model_validate(user) for user in data])
-            else:
-                # if user is not admin, return public view of account
-                # utility logic should be created to ensure that users can only
-                # query their own accounts.
-                user_accounts.append(*[AccountPublic.model_validate(user) for user in data])
+                    elif status == AccountStatus.USER:
+                        return AccountPublic.model_construct(**user.model_dump())
 
-            for acc in user_accounts:
-                if username.lower() == acc.username.lower():
-                    user_account = acc
-                    break
+                    else:
+                        return None
 
-            return user_account
+            return None
         else:
             return None
 
@@ -156,39 +146,37 @@ class AccountsService:
             return None # todo - replace with access error
 
         if self.valid_path:
-            with open(self.file_path, 'r') as file:
-                data = json.load(file)
-
-            if len(data) == 0:
-                return None
-
-            return [AccountInternal.model_validate(account) for account in data]
+            return self.__fetch_accounts()
         else:
             return None # todo - replace with path error
 
     # todo - expand based on email and id
-    def remove_account_by_username(self, username: str) -> None:
+    def remove_account_by_username(self, username: str, status: AccountStatus) -> bool | None:
         '''
         Removes an account by its username.
 
         :param username:
+        :param status:
         :return:
         '''
 
+        if status == AccountStatus.BANNED or status == AccountStatus.ON_HOLD:
+            return None
+
         if self.valid_path:
             # load data
-            with open(self.file_path, 'r') as file:
-                data = json.load(file)
+            accounts: list[AccountInternal] = self.__fetch_accounts()
 
-            user_account: AccountInternal | None = None
-            accounts: list[AccountInternal] = [AccountInternal.model_validate(account) for account in data]
+            if len(accounts) == 0:
+                return None # todo - return an error for no user
 
-            for acc in accounts:
-                if acc.username.lower() == username.lower():
-                    user_account = acc
-
-            data.remove(user_account.model_dump()) # remove user from data
+            for user in accounts:
+                if username.lower() == user.username.lower():
+                    accounts.remove(user)
 
             # save data
-            with open(self.file_path, 'w') as file:
-                json.dump(data, file, indent=4)
+            self.__save(self.file_path, accounts)
+
+            return True
+        else:
+            return False
