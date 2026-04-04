@@ -63,37 +63,37 @@ class AccountsService:
 
         if self.valid_path:
             with open(self.file_path, 'r') as file:
-                data = json.load(file)
+                try:
+                    data = json.load(file)
+                except json.JSONDecodeError:
+                    data = []
 
             if len(data) == 0:
                 return None
 
-            user: AccountInternal | None = None
-            accounts: dict = {acc.username.lower(): acc for acc in data}
+            accounts: list[AccountInternal] = [AccountInternal.model_validate(acc) for acc in data]
 
-            if username.lower() in accounts:
-                user = AccountInternal.model_validate(accounts[username.lower()])
-            else:
-                return None
+            for i, user in enumerate(accounts):
+                if user.username.lower() == username.lower():
+                    if status == AccountStatus.ADMIN:
+                        accounts[i] = update
+                        break
 
-            if status == AccountStatus.ADMIN:
-                user = update
+                    elif status == AccountStatus.USER:
+                        if update.username:
+                            accounts[i].username = update.username
 
-            elif status == AccountStatus.USER:
-                if username != user.username:
-                    return False # Users can only edit their own accounts.
+                        if update.email:
+                            accounts[i].pii_email = update.email
 
-                if update.email:
-                    user.pii_email = update.email
+                        break
 
-                if update.username:
-                    user.username = update.username
-
-            else:
-                return False
+                    else:
+                        print('ERROR: Only users and admin can edit accounts')
+                        return None
 
             with open(self.file_path, 'w') as file:
-                updates: list = [acc.model_dump() for acc in accounts.values()]
+                updates: list = [acc.model_dump() for acc in accounts]
                 json.dump(updates, file, indent=4)
 
             return True
