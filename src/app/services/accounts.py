@@ -8,7 +8,7 @@ from ..models import AccountInternal, AccountPublic, AccountStatus, CreateAccoun
 from ..services import FileManagementService
 # ===================
 
-class AccountsService:
+class AccountServices:
     def __init__(self):
         self.service = FileManagementService('vault', 'accounts')
         self.file_path = self.service.construct_path()
