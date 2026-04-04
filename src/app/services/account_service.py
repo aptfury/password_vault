@@ -104,7 +104,32 @@ class AccountService:
 
         return users
 
+    def update(self, field: str, search: str, update: AccountInternal) -> bool:
+        '''
+        Updates an account using a query.
 
+        :param field:
+        :param search:
+        :param update:
+        :return:
+        '''
+
+        if not self.valid_path:
+            return False
+
+        accounts: list[AccountInternal] = self.__fetch_accounts()
+
+        if len(accounts) == 0:
+            return False
+
+        for i, account in enumerate(accounts):
+            if search.lower() == getattr(account, field).lower():
+                accounts[i] = update
+                break
+
+        self.__save(self.file_path, accounts)
+
+        return True
 
     def internal_find_all_users(self) -> list[AccountInternal] | None:
         '''
