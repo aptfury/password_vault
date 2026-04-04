@@ -9,7 +9,7 @@ from pathlib import Path
 
 # ===== SERVICES =====
 
-class FileManagementService:
+class StorageService:
     def __init__(self, folder: str, filename: str):
         self.folder = folder
         self.filename = filename

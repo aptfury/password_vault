@@ -6,14 +6,14 @@
 
 import json
 from ..models import AccountInternal, AccountPublic
-from ..services import FileManagementService
+from ..services import StorageService
 
 
 # ===== SERVICES =====
 
-class AccountsService:
+class AccountService:
     def __init__(self):
-        self.service = FileManagementService('vault', 'accounts')
+        self.service = StorageService('vault', 'accounts')
         self.file_path = self.service.construct_path()
         self.valid_path = self.service.create_if_missing()
 
