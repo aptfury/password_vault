@@ -36,43 +36,23 @@ class AccountUtil:
         self.__auth = AuthUtilities()
         self.__pepper = os.getenv("ACCOUNT_PEPPER")
 
-    def __action_forbidden(self, status: AccountStatus, admin_only: bool = False) -> bool:
-        '''Checks if the action taken is forbidden based on permissions.'''
-        if status == AccountStatus.ADMIN:
-            return False
+    def __access_forbidden(self, status: str) -> bool:
+        '''
+        Used to detect accounts that are on hold or banned.
 
-        if admin_only:
-            return True
+        :param status:
+        :return:
+        '''
+        return status == AccountStatus.ON_HOLD or status == AccountStatus.BANNED
 
-        if status == AccountStatus.USER:
-            return False
+    def __is_admin(self, status: str) -> bool:
+        '''
+        Shorthand for whether the user is an administrator.
 
-        return True
-
-    def __is_admin(self, status: AccountStatus) -> bool:
-        '''Shorthand to check if the user is an admin.'''
-        if status == AccountStatus.ADMIN:
-            return True
-
-        return False
-
-    def __is_self_query(
-            self,
-            user: AccountInternal,
-            field: str | None = None,
-            search: str | None = None,
-            target: AccountInternal | None = None
-    ) -> bool:
-        '''Checks if the user is querying their own account'''
-        if target is not None:
-            if user.id == target.id:
-                return True
-
-        if field is not None and search is not None:
-            if getattr(user, field).lower() == search.lower():
-                return True
-
-        return False
+        :param status:
+        :return:
+        '''
+        return status == AccountStatus.ADMIN
 
     def create(self, data: CreateAccount) -> bool:
         '''
@@ -95,10 +75,69 @@ class AccountUtil:
         # create new account
         return self.service.create(new_account)
 
-    # def query_user(
-    #         self,
-    #         user: AccountInternal,
-    #         fields: AcceptedFields,
-    #         search: str | AccountStatus
-    # ) -> AccountInternal | AccountPublic | None:
-    #
+    def query_user(
+            self,
+            user: AccountInternal, # the user querying
+            field: AcceptedFields, # the field they are querying
+            search: str | AccountStatus, # the value they are searching for in that field
+            all_matches: bool = False # returns a list of all responses - ADMIN ONLY
+    ) -> AccountInternal | AccountPublic | list[AccountInternal | AccountPublic] | None:
+        '''
+        Queries for a specific user based on input.
+
+        PERMISSIONS:
+        - ADMIN are able to query any user and can query request lists of users matching queries.
+        - ON_HOLD and USERS are allowed to query themselves and view their own accounts.
+        - BANNED are not allowed to query themselves or anyone else.
+
+        :param user:
+        :param field:
+        :param search:
+        :param all_matches:
+        :return:
+        '''
+
+        is_admin: bool = self.__is_admin(user.status)
+        is_forbidden: bool = self.__access_forbidden(user.status)
+
+        if is_forbidden:
+            if user.status == AccountStatus.BANNED:
+                # todo - throw error
+                # todo - security log attempt
+                # todo - exit program without further responses
+                return None
+
+        if not is_admin:
+            if getattr(user, field).lower == search.lower() and not all_matches:
+                account: AccountInternal = self.service.query_user(field, search)
+
+                # double check that it's their account
+                if user.id != account.id:
+                    # todo - throw error
+                    # todo - security log attempt
+                    # todo - exit program with alert
+                    return None
+
+                # convert to secure view
+                public_access: AccountPublic = AccountPublic.model_construct(account.model_dump(mode='json'))
+                return public_access
+
+        # double check request is coming from admin
+        if is_admin:
+            # check if they are requesting a list
+            if all_matches:
+                accounts: list[AccountInternal] = self.service.get_all()
+                matches: list[AccountInternal] = list()
+
+                for account in accounts:
+                    if getattr(account, field).lower() == search.lower():
+                        matches.append(account)
+
+                return matches
+            else:
+                return self.service.query_user(field, search)
+        else:
+            # todo - throw error
+            # todo - log error
+            # todo - exit with alert to user that they should report this/open an issue
+            return None
