@@ -5,116 +5,167 @@
 # ===== IMPORTS =====
 
 import json
-from ..models import AccountInternal, AccountPublic
+from ..models import AccountInternal, AccountPublic, AccountStatus
 from ..services import StorageService
 
 
 # ===== SERVICES =====
 
 class AccountService:
-    def __init__(self):
-        self.service = StorageService('vault', 'accounts')
+    def __init__(self, storage: StorageService):
+        self.service = storage
         self.file_path = self.service.construct_path()
         self.valid_path = self.service.create_if_missing()
+        self.__load = self.service.read_file
+        self.__save = self.service.save_file
 
-    def create_new_account(self, new_user: AccountInternal) -> bool | None:
+    def __fetch_accounts(self) -> list[AccountInternal]:
+        data = self.service.read_file(self.file_path)
+        accounts: list[AccountInternal] = [AccountInternal.model_validate(account) for account in data]
+
+        return accounts
+
+    def create(self, new_user: AccountInternal) -> bool | None:
         '''
-        Creates a new account and adds it to the database.
+        Creates a new account and adds it to the accounts JSON file.
 
         :param new_user:
         :return:
         '''
 
-        if self.valid_path:
-            # load data
-            with open(self.file_path, 'r') as file:
-                try:
-                    data = json.load(file)
-                except json.JSONDecodeError:
-                    data = [] # catch no data
-
-            # add user to data
-            data.append(new_user.model_dump())
-
-            # write data
-            with open(self.file_path, 'w') as file:
-                json.dump(data, file, indent=4)
-
-            return True
-        else:
+        if not self.valid_path:
             return None
 
-    def find_account_by_username(self, username: str) -> AccountPublic | None:
-        '''
-        Finds a account by its username.
+        # load data
+        accounts: list[AccountInternal] = self.__fetch_accounts()
 
-        :param username:
+        # make user the admin if they are the first account
+        if len(accounts) == 0:
+            new_user.status = AccountStatus.ADMIN
+
+        for user in accounts:
+            if new_user.username == user.username:
+                print('Username taken, please register again to pick a new one.')
+                return False
+
+        # add user to data
+        # accounts.append(new_user.model_dump(mode='json'))
+        accounts.append(new_user)
+
+        # write data
+        self.__save(self.file_path, accounts)
+
+        return True
+
+    def query_user(self, field: str, search: str) -> AccountInternal | None:
+        '''
+        Find an account based on provided query
+
+        :param field:
+        :param search:
         :return:
         '''
 
-        if self.valid_path:
-            # load data
-            with open(self.file_path, 'r') as file:
-                data = json.load(file)
-
-            if len(data) == 0:
-                return None
-
-            # find user
-            user_account: AccountPublic | None = None
-            accounts: list[AccountPublic] = [AccountPublic.model_validate(account) for account in data]
-
-            for account in accounts:
-                if account.username.lower() == username.lower():
-                    user_account = account
-                    break
-
-            return user_account
-        else:
+        # check for valid path
+        if not self.valid_path:
             return None
 
-    def internal_find_all_users(self) -> list[AccountInternal] | None:
-        '''
-        Returns a list of all registered users.
+        # fetch accounts
+        accounts: list[AccountInternal] = self.__fetch_accounts()
 
+        if len(accounts) == 0:
+            return None
+
+        # loop accounts to find user
+        for account in accounts:
+            if search.lower() == getattr(account, field).lower():
+                return account
+
+        return None # no user found
+
+    def query_users(self, field: str, search: str) -> list[AccountInternal] | None:
+        '''
+        Finds a list of accounts based on query
+
+        :param field:
+        :param search:
+        :param limit:
         :return:
         '''
 
-        if self.valid_path:
-            # load data
-            with open(self.file_path, 'r') as file:
-                data = json.load(file)
-
-            if len(data) == 0:
-                return None
-
-            return [AccountInternal.model_validate(account) for account in data]
-        else:
+        if not self.valid_path:
             return None
 
-    # todo - expand based on email and id
-    def remove_account_by_username(self, username: str) -> None:
-        '''
-        Removes an account by its username.
+        accounts: list[AccountInternal] = self.__fetch_accounts()
 
-        :param username:
+        if len(accounts) == 0:
+            return None
+
+        users: list[AccountInternal] = []
+
+        for account in accounts:
+            if search.lower() == getattr(account, field).lower():
+                users.append(account)
+
+        return users
+
+    def get_user_id(self, field: str, search: str) -> str | None:
+        if not self.valid_path:
+            return None
+
+        user: AccountInternal = self.query_user(field, search)
+
+        return user.id
+
+    def update(self, field: str, search: str, update: AccountInternal) -> bool:
+        '''
+        Updates an account using a query.
+
+        :param field:
+        :param search:
+        :param update:
         :return:
         '''
 
-        if self.valid_path:
-            # load data
-            with open(self.file_path, 'r') as file:
-                data = json.load(file)
+        if not self.valid_path:
+            return False
 
-            user_account: AccountInternal | None = None
-            accounts: list[AccountInternal] = [AccountInternal.model_validate(account) for account in data]
+        accounts: list[AccountInternal] = self.__fetch_accounts()
 
-            for account in accounts:
-                if account.username.lower() == username.lower():
-                    user_account = account
+        if len(accounts) == 0:
+            return False
 
-            data.remove(user_account.model_dump()) # remove user from data
+        for i, account in enumerate(accounts):
+            if search.lower() == getattr(account, field).lower():
+                accounts[i] = update
+                break
 
-            # save data
-            with open(self.file_path, 'w') as file:
-                json.dump(data, file, indent=4)
+        self.__save(self.file_path, accounts)
+
+        return True
+
+    def get_all(self) -> list[AccountInternal] | None:
+        if not self.valid_path:
+            return None
+
+        return self.__fetch_accounts()
+
+
+    def remove(self, account: AccountInternal) -> bool | None:
+        '''
+        Removes an account by a query.
+
+        :param account:
+        :return:
+        '''
+
+        if not self.valid_path:
+            return None
+
+        accounts: list[AccountInternal] = self.__fetch_accounts()
+
+        accounts.remove(account)
+
+        self.__save(self.file_path, accounts)
+
+        return True

@@ -10,7 +10,7 @@ from pathlib import Path
 # ===== SERVICES =====
 
 class StorageService:
-    def __init__(self, directory: str, filename: str):
+    def __init__(self, directory, filename):
         self.directory = directory
         self.filename = filename if filename.endswith('.json') else f'{filename}.json'
 
@@ -80,7 +80,7 @@ class StorageService:
             self.create_if_missing()
 
         with open(file_path, 'w') as file:
-            save_data: list = [item.model_dump() for item in data]
+            save_data: list = [item.model_dump(mode='json') for item in data]
             json.dump(save_data, file, indent=4)
 
         return None
