@@ -6,9 +6,8 @@ Description: Fixtures and other configurations for unit and integration tests.
 
 # ===== IMPORTS =====
 import pytest
-from app.models import (
-    AccountInternal,
-    AccountPublic,
-    AccountStatus
-)
+from app.models import *
+from app.services import *
+from app.utilities import *
+from app.controllers import *
 # ===================
