@@ -131,24 +131,11 @@ class AccountService:
 
         return True
 
-    def internal_find_all_users(self) -> list[AccountInternal] | None:
-        '''
-        Returns a list of all registered users.
-
-        :return:
-        '''
-
-        if self.valid_path:
-            # load data
-            with open(self.file_path, 'r') as file:
-                data = json.load(file)
-
-            if len(data) == 0:
-                return None
-
-            return [AccountInternal.model_validate(account) for account in data]
-        else:
+    def all_users(self) -> list[AccountInternal] | None:
+        if not self.valid_path:
             return None
+
+        return self.__fetch_accounts()
 
     # todo - expand based on email and id
     def remove_account_by_username(self, username: str) -> None:
