@@ -141,3 +141,25 @@ class AccountUtil:
             # todo - log error
             # todo - exit with alert to user that they should report this/open an issue
             return None
+
+    def get_user_id(self, user: AccountInternal, field: str, search: str) -> str | None:
+        '''
+        ADMIN & INTERNAL USE ONLY.
+
+        Allows admins and internal systems to retrieve a user's ID without returning the whole user account.
+
+        :param user:
+        :param field:
+        :param search:
+        :return:
+        '''
+
+        if not self.__is_admin(user.status):
+            # todo - access denied/forbidden access
+            # todo - add to security log
+            # todo - exit with message to create bug report if user has admin permissions
+            return None
+
+        account: AccountInternal = self.service.query_user(field, search)
+
+        return account.id
