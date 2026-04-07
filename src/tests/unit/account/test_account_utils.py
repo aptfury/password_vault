@@ -86,3 +86,36 @@ def test_get_user_id(account_util, util_registered_user_factory):
     assert isinstance(fetch_id_as_admin, str)
     assert fetch_id_as_admin == expected_fetch_id_as_admin
     assert fetch_id_as_user == expected_fetch_id_as_user
+
+def test_update(account_util, util_registered_user_factory):
+    admin: AccountInternal = util_registered_user_factory(username='main_admin', status=AccountStatus.ADMIN)
+    user: AccountInternal = util_registered_user_factory(username='main_user', status=AccountStatus.USER)
+    on_hold: AccountInternal = util_registered_user_factory(username='user_hold', status=AccountStatus.ON_HOLD)
+    banned: AccountInternal = util_registered_user_factory(username='user_banned', status=AccountStatus.BANNED)
+
+    assert [isinstance(account, AccountInternal) for account in [admin, user, on_hold, banned]]
+
+    updated_admin: AccountInternal = admin
+    updated_user: AccountInternal = user
+    updated_on_hold: AccountInternal = on_hold
+    updated_banned: AccountInternal = banned
+
+    # Test Banned & On_Hold User Response
+    updated_on_hold.pii_email = 'notonhold@vault.com'
+    updated_banned.pii_email = 'notbanned@vault.com'
+
+    pii_email_update_on_hold: bool = account_util.update(on_hold, 'id', on_hold.id, updated_on_hold)
+    assert pii_email_update_on_hold is None # Should return empty until alert created
+
+    pii_email_update_banned: bool = account_util.update(banned, 'id', banned.id, updated_banned)
+    assert pii_email_update_banned is None # is None # Should return empty until alert created
+
+    # Test Banned & On_hold cannot change their status
+    updated_on_hold.status = AccountStatus.USER
+    updated_banned.status = AccountStatus.USER
+
+    status_update_on_hold: bool = account_util.update(on_hold, 'id', on_hold.id, updated_on_hold)
+    assert status_update_on_hold is None
+
+    status_update_banned: bool = account_util.update(banned, 'id', banned.id, updated_banned)
+    assert status_update_banned is None

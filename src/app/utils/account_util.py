@@ -189,6 +189,7 @@ class AccountUtil:
                 return None
 
         if self.__is_admin(user.status):
+            # ensure admin cannot change their own status
             response = self.service.update(field, search, update)
             return response
         else:
