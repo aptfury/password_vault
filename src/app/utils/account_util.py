@@ -200,3 +200,17 @@ class AccountUtil:
             return response
         else:
             return None
+
+    def get_all(self, user: AccountInternal) -> list[AccountInternal] | None:
+        if not self.__is_admin(user.status):
+            return None
+
+        return self.service.get_all()
+
+    def remove(self, user: AccountInternal, target: AccountInternal) -> bool | None:
+        if not self.__is_admin(user.status):
+            if user.id == target.id:
+                return self.service.remove(target)
+            return None
+
+        return self.service.remove(target)

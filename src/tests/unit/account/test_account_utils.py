@@ -180,3 +180,22 @@ def test_update(account_util, util_registered_user_factory):
     admin_can_update_banned: bool = account_util.update(admin, 'id', banned.id, banned_update_illegal_status)
     assert admin_can_update_banned is True
     ### ADMIN ###
+
+def test_get_all(account_util, util_registered_user_factory):
+    admin = util_registered_user_factory(status=AccountStatus.ADMIN)
+    user = util_registered_user_factory(status=AccountStatus.USER)
+    on_hold = util_registered_user_factory(status=AccountStatus.ON_HOLD)
+    banned = util_registered_user_factory(status=AccountStatus.BANNED)
+
+    banned_can_get_all: list[AccountInternal] = account_util.get_all(banned)
+    assert banned_can_get_all is None
+
+    on_hold_can_get_all: list[AccountInternal] = account_util.get_all(on_hold)
+    assert on_hold_can_get_all is None
+
+    user_can_get_all: list[AccountInternal] = account_util.get_all(user)
+    assert user_can_get_all is None
+
+    admin_can_get_all: list[AccountInternal] = account_util.get_all(admin)
+    assert admin_can_get_all is not None
+    assert [isinstance(user, AccountInternal) for user in admin_can_get_all]
