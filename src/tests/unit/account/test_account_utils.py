@@ -199,3 +199,33 @@ def test_get_all(account_util, util_registered_user_factory):
     admin_can_get_all: list[AccountInternal] = account_util.get_all(admin)
     assert admin_can_get_all is not None
     assert [isinstance(user, AccountInternal) for user in admin_can_get_all]
+
+def test_remove(account_util, util_registered_user_factory):
+    admin: AccountInternal = util_registered_user_factory(status=AccountStatus.ADMIN)
+    user: AccountInternal = util_registered_user_factory(status=AccountStatus.USER)
+    on_hold: AccountInternal = util_registered_user_factory(status=AccountStatus.ON_HOLD)
+    banned: AccountInternal = util_registered_user_factory(status=AccountStatus.BANNED)
+
+    banned_can_remove_user: bool = account_util.remove(banned, user)
+    assert banned_can_remove_user is False
+
+    banned_can_remove_self: bool = account_util.remove(banned, banned)
+    assert banned_can_remove_self is False
+
+    on_hold_can_remove_user: bool = account_util.remove(on_hold, user)
+    assert on_hold_can_remove_user is False
+
+    on_hold_can_remove_self: bool = account_util.remove(on_hold, on_hold)
+    assert on_hold_can_remove_self is False
+
+    user_can_remove_user: bool = account_util.remove(user, on_hold)
+    assert user_can_remove_user is None
+
+    user_can_remove_self: bool = account_util.remove(user, user)
+    assert user_can_remove_self is True
+
+    admin_can_remove_user: bool = account_util.remove(admin, banned)
+    assert admin_can_remove_user is True
+
+    admin_can_remove_self: bool = account_util.remove(admin, admin)
+    assert admin_can_remove_self is True
