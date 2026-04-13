@@ -95,27 +95,88 @@ def test_update(account_util, util_registered_user_factory):
 
     assert [isinstance(account, AccountInternal) for account in [admin, user, on_hold, banned]]
 
-    updated_admin: AccountInternal = admin
-    updated_user: AccountInternal = user
-    updated_on_hold: AccountInternal = on_hold
-    updated_banned: AccountInternal = banned
+    ### TEST CASE UPDATE ACCOUNTS ###
 
-    # Test Banned & On_Hold User Response
-    updated_on_hold.pii_email = 'notonhold@vault.com'
-    updated_banned.pii_email = 'notbanned@vault.com'
+    admin_update_legal: AccountInternal = util_registered_user_factory(username='admin_name_change', status=AccountStatus.ADMIN)
+    admin_update_illegal: AccountInternal = util_registered_user_factory(status=AccountStatus.USER)
+    admin_update_legal.id = admin.id
+    admin_update_illegal.id = admin.id
 
-    pii_email_update_on_hold: bool = account_util.update(on_hold, 'id', on_hold.id, updated_on_hold)
-    assert pii_email_update_on_hold is None # Should return empty until alert created
+    user_update_legal: AccountInternal = util_registered_user_factory(username='user_name_change', status=AccountStatus.USER)
+    user_update_illegal: AccountInternal = util_registered_user_factory(status=AccountStatus.ADMIN)
+    user_update_legal.id = user.id
+    user_update_illegal.id = user.id
 
-    pii_email_update_banned: bool = account_util.update(banned, 'id', banned.id, updated_banned)
-    assert pii_email_update_banned is None # is None # Should return empty until alert created
+    on_hold_update_illegal_name: AccountInternal = util_registered_user_factory(username='on_hold_name_change', status=AccountStatus.ON_HOLD)
+    on_hold_update_illegal_status: AccountInternal = util_registered_user_factory(status=AccountStatus.USER)
+    on_hold_update_illegal_name.id = on_hold.id
+    on_hold_update_illegal_status.id = on_hold.id
 
-    # Test Banned & On_hold cannot change their status
-    updated_on_hold.status = AccountStatus.USER
-    updated_banned.status = AccountStatus.USER
+    banned_update_illegal_name: AccountInternal = util_registered_user_factory(username='banned_name_change', status=AccountStatus.BANNED)
+    banned_update_illegal_status: AccountInternal = util_registered_user_factory(status=AccountStatus.ADMIN)
+    banned_update_illegal_name.id = banned.id
+    banned_update_illegal_status.id = banned.id
 
-    status_update_on_hold: bool = account_util.update(on_hold, 'id', on_hold.id, updated_on_hold)
-    assert status_update_on_hold is None
+    ### TEST CASE UPDATE ACCOUNTS ###
 
-    status_update_banned: bool = account_util.update(banned, 'id', banned.id, updated_banned)
-    assert status_update_banned is None
+    ### ON_HOLD ###
+    on_hold_can_update_on_hold: bool = account_util.update(on_hold, 'id', on_hold.id, on_hold_update_illegal_name)
+    assert on_hold_can_update_on_hold is None
+
+    on_hold_can_promote_on_hold: bool = account_util.update(on_hold, 'id', on_hold.id, on_hold_update_illegal_status)
+    assert on_hold_can_promote_on_hold is None
+
+    on_hold_can_update_user: bool = account_util.update(on_hold, 'id', user.id, user_update_legal)
+    assert on_hold_can_update_user is None
+
+    on_hold_can_update_admin: bool = account_util.update(on_hold, 'id', admin.id, admin_update_illegal)
+    assert on_hold_can_update_admin is None
+    ### ON_HOLD ###
+
+    ### BANNED ###
+    banned_can_update_banned: bool = account_util.update(banned, 'id', banned.id, banned_update_illegal_name)
+    assert banned_can_update_banned is None
+
+    banned_can_promote_banned: bool = account_util.update(banned, 'id', banned.id, banned_update_illegal_status)
+    assert banned_can_promote_banned is None
+
+    banned_can_update_user: bool = account_util.update(banned, 'id', user.id, user_update_illegal)
+    assert banned_can_update_user is None
+
+    banned_can_update_admin: bool = account_util.update(banned, 'id', admin.id, admin_update_illegal)
+    assert banned_can_update_admin is None
+    ### BANNED ###
+
+    ### USER ###
+    user_can_update_user_info: bool = account_util.update(user, 'id', user.id, user_update_legal)
+    assert user_can_update_user_info is True
+
+    user_can_promote_user: bool = account_util.update(user, 'id', user.id, user_update_illegal)
+    assert user_can_promote_user is False
+
+    user_can_update_admin: bool = account_util.update(user, 'id', admin.id, admin_update_illegal)
+    assert user_can_update_admin is None
+
+    user_can_update_on_hold: bool = account_util.update(user, 'id', on_hold.id, on_hold_update_illegal_name)
+    assert user_can_update_on_hold is None
+
+    user_can_update_banned: bool = account_util.update(user, 'id', banned.id, banned_update_illegal_name)
+    assert user_can_update_banned is None
+    ### USER ###
+
+    ### ADMIN ###
+    admin_can_update_admin: bool = account_util.update(admin, 'id', admin.id, admin_update_legal)
+    assert admin_can_update_admin is True
+
+    admin_can_demote_admin: bool = account_util.update(admin, 'id', admin.id, admin_update_illegal)
+    assert admin_can_demote_admin is False
+
+    admin_can_promote_user: bool = account_util.update(admin, 'id', user.id, user_update_illegal)
+    assert admin_can_promote_user is True
+
+    admin_can_update_on_hold: bool = account_util.update(admin, 'id', on_hold.id, on_hold_update_illegal_status)
+    assert admin_can_update_on_hold is True
+
+    admin_can_update_banned: bool = account_util.update(admin, 'id', banned.id, banned_update_illegal_status)
+    assert admin_can_update_banned is True
+    ### ADMIN ###

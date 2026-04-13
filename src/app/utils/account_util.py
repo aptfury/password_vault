@@ -183,6 +183,9 @@ class AccountUtil:
 
         if not self.__is_admin(user.status):
             if user.id == update.id:
+                if user.status != update.status:
+                    return False
+
                 response = self.service.update(field, search, update)
                 return response
             else:
@@ -190,6 +193,9 @@ class AccountUtil:
 
         if self.__is_admin(user.status):
             # ensure admin cannot change their own status
+            if user.id == update.id and user.status != update.status:
+                return False
+
             response = self.service.update(field, search, update)
             return response
         else:
