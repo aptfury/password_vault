@@ -120,7 +120,12 @@ class AccountUtil:
         if not self._is_admin(req):
             raise PermissionError('You cannot perform this operation unless you are an administrator.')
 
-        return self.repo.read(field, value, req_id=req.id)
+        accounts = self.repo.read(field, value, req_id=req.id)
+
+        if not len(accounts) > 0:
+            raise ValueError('Account(s) could not be found.')
+
+        return accounts
 
     def update(self, req: AccountInternal, update: AccountInternal) -> bool | None:
         '''
