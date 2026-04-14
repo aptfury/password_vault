@@ -31,10 +31,9 @@ class AcceptedFields(str, Enum):
 # ===== UTILITIES =====
 class AccountUtil:
     def __init__(self, storage):
+        self.__auth = AuthUtil(storage=storage)
         self.service = AccountService(storage=storage)
         self.fields = AcceptedFields
-        self.__auth = AuthUtil(storage=storage)
-        self.__pepper = os.getenv("ACCOUNT_PEPPER")
 
     def __access_forbidden(self, status: str) -> bool:
         '''
@@ -202,12 +201,25 @@ class AccountUtil:
             return None
 
     def get_all(self, user: AccountInternal) -> list[AccountInternal] | None:
+        '''
+        Retrieves all user accounts.
+
+        :param user:
+        :return:
+        '''
         if not self.__is_admin(user.status):
             return None
 
         return self.service.get_all()
 
     def remove(self, user: AccountInternal, target: AccountInternal) -> bool | None:
+        '''
+        Removes a user account.
+
+        :param user:
+        :param target:
+        :return:
+        '''
         if not self.__is_admin(user.status):
             if self.__access_forbidden(user.status):
                 return False
