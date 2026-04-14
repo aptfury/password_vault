@@ -1,5 +1,5 @@
 # Name: Blake Lemarr
-# Updated: 04.01.2026
+# Updated: 04.13.2026
 # Description: Manages logic for account handling.
 
 # ===== IMPORTS =====
@@ -16,8 +16,7 @@ from ..models import (
 )
 from ..services import AccountService, StorageService
 
-# ===== UTILITIES =====
-
+# ===== INIT =====
 load_dotenv()
 # account_storage: StorageService = StorageService('data', 'accounts.json')
 
@@ -29,6 +28,7 @@ class AcceptedFields(str, Enum):
     created_on = 'created_on',
     status = 'status'
 
+# ===== UTILITIES =====
 class AccountUtil:
     def __init__(self, storage):
         self.service = AccountService(storage=storage)
