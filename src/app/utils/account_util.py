@@ -33,7 +33,7 @@ class AccountUtil:
     def __init__(self, storage):
         self.service = AccountService(storage=storage)
         self.fields = AcceptedFields
-        self.__auth = AuthUtil()
+        self.__auth = AuthUtil(storage=storage)
         self.__pepper = os.getenv("ACCOUNT_PEPPER")
 
     def __access_forbidden(self, status: str) -> bool:
@@ -63,7 +63,7 @@ class AccountUtil:
         '''
 
         # hash user password
-        hashed_password: AccountPassword = self.__auth.new_account_password(data.password)
+        hashed_password: AccountPassword = self.__auth.create_user_password(data.password)
 
         # create account model
         new_account: AccountInternal = AccountInternal(
