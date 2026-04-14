@@ -14,3 +14,15 @@ class AccountPassword(BaseModel):
     salt: str
     iterations: int = Field(default=600000)
     algorithm: str = Field(default='PBKDF2-SHA256')
+
+class AccountLogIn(BaseModel):
+    model_config = ConfigDict(strict=True)
+
+    username: str
+    password: str | AccountPassword
+
+class AccountSalt(BaseModel):
+    model_config = ConfigDict(strict=True)
+
+    salt_bytes: bytes
+    salt: str
