@@ -20,8 +20,6 @@ class AccountStatus(str, Enum):
 
 # ===== ACCOUNT =====
 class AccountBase(BaseModel):
-    model_config = ConfigDict(strict=True)
-
     username: str
     pii_email: Optional[EmailStr] = Field(default=None)
 
@@ -35,7 +33,6 @@ class AccountBase(BaseModel):
         return f'{name[0]}{'*' * (len(name) - 1)}@{domain}'
 
 class AccountInternal(AccountBase):
-    model_config = ConfigDict(strict=True)
 
     id: str = Field(default_factory=lambda: uuid4().hex)
     status: str = Field(default=AccountStatus.USER)
@@ -44,8 +41,6 @@ class AccountInternal(AccountBase):
     updated_on: datetime = Field(default_factory=lambda: datetime.now())
 
 class AccountPublic(AccountBase):
-    model_config = ConfigDict(strict=True)
-
     created_on: datetime
 
 class CreateAccount(BaseModel):
