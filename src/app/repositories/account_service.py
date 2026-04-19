@@ -38,6 +38,9 @@ class AccountRepository(IRepository[AccountInternal]):
         res: list[AccountInternal] = []
 
         for acc in accounts:
+            if field == 'email' and acc.pii_email == value.lower():
+                res.append(acc)
+
             if getattr(acc, field).lower() == value.lower():
                 res.append(acc)
 
@@ -48,7 +51,7 @@ class AccountRepository(IRepository[AccountInternal]):
 
         for i, acc in enumerate(accounts):
             if acc.id == target_id:
-                update_data.updated_on = str(datetime.now())
+                update_data.updated_on = datetime.now()
                 accounts[i] = update_data
                 self._save(accounts)
                 return True

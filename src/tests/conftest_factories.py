@@ -17,6 +17,7 @@ from app.utils import *
 from datetime import datetime
 from faker import Faker
 from pathlib import Path
+from pydantic import TypeAdapter
 from unittest.mock import MagicMock
 from uuid import uuid4
 
@@ -79,11 +80,37 @@ class MockStorageFactory:
         for account in accounts:
             self.mock.load_data.return_value.append(account)
 
+    def load_data(self):
+        return self.mock.load_data
+
+    def query_seeded_data(self, key, value):
+        data = self.mock.load_data()
+        results = []
+
+        for item in data:
+            if isinstance(item, dict):
+                # adapter = TypeAdapter(AccountInternal)
+                # acc = adapter.validate_python(item)
+                acc = AccountInternal.model_validate(item, strict=False)
+            else:
+                acc = item
+
+            if getattr(acc, key.lower()) == value.lower():
+                results.append(acc)
+
+        return results
+
     def delete_storage_failed(self):
         self.mock.delete_storage.return_value = False
 
     def path_construction_failed(self):
         self.mock.file_path.exists.return_value = False
+
+    def enable_auto_sync(self):
+        def sync_save(data):
+            self.mock.load_data.return_value = data
+            return True
+        self.mock.save_data.side_effect = sync_save
 
     def build(self):
         return self.mock
@@ -99,23 +126,21 @@ class MockAccountFactory:
 
 
     def create_account(self, username: str | None = None, password: str | None = None, status: AccountStatus | None = None):
-        mock_user = MagicMock(spec=AccountInternal, autospec=True)
-        mock_user.id = str(fake.uuid4())
-        mock_user.username = username if username else fake.user_name()
-        mock_user.pii_email = fake.email(True, 'passvault.com')
-        mock_user.status = status if status else AccountStatus.ADMIN
-        mock_user.created_on = datetime.now()
-        mock_user.updated_on = datetime.now()
-
-        # CENSOR EMAIL #
-        # todo - transfer to security
-        name, domain = mock_user.pii_email.split('@')
-        mock_user.email = f'{name[0]}{'*' * (len(name) - 1)}@{domain}'
+        user_id = str(fake.uuid4())
+        username = username if username else fake.user_name()
+        pii_email = fake.email(True, 'passvault.com')
+        status = status if status else AccountStatus.ADMIN
 
         # HASHED PASSWORD #
-        mock_user.hashed_password = self.security.hashed_password(password if password else fake.password(), False)
+        hashed_password = self.security.hashed_password(password if password else fake.password(), False)
 
-        return mock_user
+        return AccountInternal(
+            id=user_id,
+            username=username,
+            pii_email=pii_email,
+            status=status,
+            hashed_password=hashed_password
+        )
 
 # ==================================================================================== #
 # ===================================== SECURITY ===================================== #
@@ -138,8 +163,6 @@ class MockSecurityFactory:
         }
 
     def hashed_password(self, raw_password: str, debug_mode: bool = False):
-        mock_password = MagicMock(spec=AccountPassword, autospec=True)
-
         if debug_mode:
             debug = self.debugging_salt_pepper()
             pepper = debug['pepper']
@@ -158,12 +181,10 @@ class MockSecurityFactory:
             600000
         )
 
-        mock_password.iterations = 600000
-        mock_password.algorithm = 'PBKDF2-SHA256'
-        mock_password.salt = base64.b64encode(salt).decode('utf-8')
-        mock_password.hash = base64.b64encode(hashed_password_bytes).decode('utf-8')
-
-        return mock_password
+        return AccountPassword(
+            salt=base64.b64encode(salt).decode('utf-8'),
+            hash=base64.b64encode(hashed_password_bytes).decode('utf-8'),
+        )
 
 # ================================================================================= #
 # ===================================== VAULT ===================================== #

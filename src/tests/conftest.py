@@ -38,6 +38,18 @@ def mock_accounts():
         return MockAccountFactory()
     return _mock_accounts
 
+@pytest.fixture
+def mock_account_repo(mock_storage):
+    return MagicMock(spec=AccountRepository, autospec=True)
+
+@pytest.fixture
+def account_repo(mock_storage):
+    storage_factory = mock_storage('test_db', 'test_accounts.json')
+    mocked_storage = storage_factory.build()
+    repo = AccountRepository(storage=mocked_storage)
+
+    return repo, storage_factory
+
 # ========== SECURITY ========== #
 @pytest.fixture
 def mock_security():
