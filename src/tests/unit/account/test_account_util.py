@@ -63,3 +63,26 @@ def test_is_admin(account_util, mock_accounts):
     assert not account_is_user
     assert not account_is_on_hold
     assert not account_banned
+
+def test_create(account_util, mock_accounts):
+    # INIT #
+    util, storage_factory = account_util
+    mocked_accounts = mock_accounts()
+
+    storage_factory.enable_auto_sync()
+    storage_factory.load_multi_mixed_accounts()
+    storage_factory.build()
+
+    # TEST LOGIC #
+    new_user = mocked_accounts.create_sign_up()
+    created = util.create(new_user)
+
+    query_user = storage_factory.query_seeded_data('username', new_user.username)
+
+    expected_username = query_user[0].username
+    expected_email = query_user[0].pii_email
+
+    # ASSERTIONS #
+    assert created
+    assert new_user.username == expected_username
+    assert new_user.email == expected_email
