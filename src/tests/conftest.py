@@ -2,6 +2,7 @@ import pytest
 from faker import Faker
 from src.app.storage import StorageConfig
 
+
 fake: Faker = Faker()
 
 # ---------- storage_config ---------- #
