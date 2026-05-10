@@ -1,10 +1,7 @@
 import pytest
-from faker import Faker
 from pathlib import Path
 
 from app.storage import StorageConfig
-
-# fake: Faker = Faker()
 
 # ---------- storage_config ---------- #
 @pytest.fixture
