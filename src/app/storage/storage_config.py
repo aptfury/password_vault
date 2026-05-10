@@ -12,8 +12,8 @@ from typing import Any
 # only use through appropriate subclasses
 class StorageConfig:
     # initiate subclass
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
+    # def __init_subclass__(cls, **kwargs):
+    #     super().__init_subclass__(**kwargs)
 
     def __init__(self, **kwargs):
         ### Check if running a tests ###
@@ -28,7 +28,38 @@ class StorageConfig:
         ### Fill in available ###
 
         ### Path builder shortcut ###
-        self._database: Path = self.__connect()
+        self.database: Path = self.__connect()
+
+    def _test_only(self) -> dict:
+        self.__connect()
+        '''To help with parsing through the data to pull for testing.'''
+        response: dict = {}
+        response['props'] = {
+            'test': {
+                'is_test': self.is_test,
+                'test_dir': self.test_dir,
+                'test_db_name': self.test_db_name
+            },
+            'path': {
+                'db_name': self.__db_name,
+                'db_dir': self.__db_dir
+            },
+            'validation': {
+                'test': {
+                    'validate_test_db_name': self.__validate_data(key='db_name', value=self.__db_name)
+                    # test_db_dir is difficult to do with this one since I don't use it properly yet
+                },
+                'path': {
+                    'validate_db_name': self.__validate_data(key='db_name', value=self.__db_name),
+                    'validate_db_dir': self.__validate_data(key='db_dir', value=self.__db_dir)
+                }
+            },
+            'connection': {
+                'con_path': self.__connect()
+            }
+        }
+        print(response)
+        return
 
     ### VALIDATE DATABASE NAME ###
     def __validate_data(self, **kwargs) -> bool:
