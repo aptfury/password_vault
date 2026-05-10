@@ -1,13 +1,13 @@
 '''
 AUTHOR: Blake Lemarr
 DATE: 05.09.26
-
+DESCRIPTION: A base class for a storage-based decorator.
 '''
 
 import json
 
 from pathlib import Path
-from typing import Any
+from typing import Optional, Any
 
 # only use through appropriate subclasses
 class StorageConfig:
@@ -18,8 +18,8 @@ class StorageConfig:
     def __init__(self, **kwargs):
         ### Check if running a tests ###
         self.is_test: bool = kwargs.get('is_test', False)
-        self.test_dir: Path = kwargs.get('test_dir', None)
-        self.test_db_name: str = kwargs.get('test_db_name', None)
+        self.test_dir: Optional[Path] = kwargs.get('test_dir', None)
+        self.test_db_name: Optional[str] = kwargs.get('test_db_name', None)
         ### Check if running a tests ###
 
         ### Fill in available ###
