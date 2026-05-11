@@ -5,7 +5,6 @@ DESCRIPTION: A subclass of StorageConfig made to function as a wrapper for
                 repository access.
 '''
 
-from pathlib import Path
 from typing import Optional
 from functools import wraps
 
@@ -13,7 +12,7 @@ from .storage_config import StorageConfig
 
 class AppStorage(StorageConfig):
     def __init__(self, action: str, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(db_dir='database', **kwargs)
         
         self.valid_action: bool = self.validate_data(key='action', value=action)
         self.action: Optional[str] = action if self.valid_action else None
