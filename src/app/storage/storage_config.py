@@ -11,27 +11,6 @@ from typing import Optional, Any
 
 # only use through appropriate subclasses
 class StorageConfig:
-        
-    def __init_subclass__(cls, **kwargs):
-        
-        super().__init_subclass__(cls, **kwargs)
-        
-        def _database_exists() -> bool:
-            return cls.__build_path(cls).exists()
-        
-        def read() -> list[dict]:
-            return cls.__read(cls)
-        
-        def append(data: dict) -> None:
-            return cls.__append(cls, data)
-        
-        def write(data: dict) -> None:
-            return cls.__write(cls, data)
-        
-        def delete() -> None:
-            return cls.__delete(cls)
-        
-
     def __init__(self, **kwargs):
         ### NOTE: FOR TESTING ONLY ###
         self.is_test: bool = kwargs.get('is_test', False)
@@ -42,6 +21,13 @@ class StorageConfig:
         self.__db_name: Optional[str] = kwargs.get('db_name', None)
         self.__db_dir: Optional[str] = kwargs.get('db_dir', None)
 
+    @property
+    def db_name(self) -> Optional[str]:
+        return self.__db_name
+    
+    @property
+    def db_dir(self) -> Optional[str]:
+        return self.__db_dir
 
     ### VALIDATE DATABASE NAME ###
     def __validate_data(self, **kwargs) -> bool:
@@ -49,9 +35,9 @@ class StorageConfig:
 
         # validation sets
         valid_data_set: dict = {
-            'actions': ['test', 'read', 'append', 'write', 'delete'],
-            'db_name': ['tests', 'accounts', 'vaults', 'logs', 'security'],
-            'db_dir': ['tests', 'tmp_dir', 'database', 'logs']
+            'action': ['test', 'read', 'update', 'write', 'delete'],
+            'db_name': ['test', 'accounts', 'vaults', 'logs', 'security'],
+            'db_dir': ['test', 'tmp_dir', 'database', 'logs']
         }
 
         # key and value pairs as kwargs
@@ -62,6 +48,9 @@ class StorageConfig:
         # return boolean
         return value in valid_data_set[key]
 
+    @property
+    def validate_data(self) -> function:
+        return self.__validate_data
 
     ### BUILD FILE PATH ###
     def __build_path(self) -> Path:
@@ -71,6 +60,7 @@ class StorageConfig:
         if self.is_test:
             if not self.__validate_data(key='db_name', value=self.test_db_name):
                 raise ConnectionRefusedError(f'{self.test_db_name} is not a valid database.')
+            
             return self.test_dir / f'{self.test_db_name}.json'
 
         # starts path creation
@@ -121,34 +111,56 @@ class StorageConfig:
                 'attempted_rebuild_dir': True,
                 'attempted_rebuild_db': True,
             }
+            
             print(issue_summary)
             raise FileNotFoundError('Failed despite rebuild attempts.')
 
+    @property
+    def build_path(self) -> function:
+        return self.__build_path
+
     ### READ ###
-    def __read(self) -> list[dict]:
+    def __read(self, **kwargs) -> list[dict]:
         db: Path = self.__build_path()
-        data: list[dict] = []
         
         with open(db, 'r', encoding='utf-8') as file:
-            data = json.load(file)
+            # TODO: Turn into a log later
+            print('data accessed')
+            return json.load(file)
             
-        # TODO: Turn into a log later
-        print('data accessed')
-        return data
+    @property
+    def read(self) -> function:
+        return self.__read
     
-    ### APPEND ###
-    def __append(self, data: dict) -> None:
-        db: Path = self.__build_path()
+    ### UPDATE ###
+    def __update(self, data: dict, **kwargs) -> None:
+        key: str = kwargs.get('key') or None
+        value: str = kwargs.get('value') or None
         
-        with open(db, 'a', encoding='utf-8') as file:
-            json.dump(data, file, indent=4)
+        file: list[dict] = self.__read()
+        
+        if key is not None and value is not None:
+            target: dict = {}
             
-        # TODO: Turn into a log later
-        print('data appended')
+            for entry in file:
+                if entry[key] == value:
+                    target = entry
+
+            file.remove(target)
+            
+        file.append(data)
+        
+        self.__write(data=file)
+        
+        print('data updated')
         return
     
+    @property
+    def update(self) -> None:
+        return self.__update
+    
     ### WRITE ###
-    def __write(self, data: dict | list[dict]) -> None:
+    def __write(self, data: dict | list[dict], **kwargs) -> None:
         db: Path = self.__build_path()
         
         with open(db, 'w', encoding='utf-8') as file:
@@ -160,17 +172,23 @@ class StorageConfig:
         print('data overwritten')
         return
     
+    @property
+    def write(self) -> function:
+        return self.__write
+    
     ### DELETE ###
     # Do not use this to delete content, it should
     # only be used to delete the actual databse file.
     # If you want to erase all the file contents, use
     # __write() instead.
-    def __delete(self) -> None:
+    def __delete(self, **kwargs) -> bool:
         db: Path = self.__build_path()
         db.unlink(missing_ok=True)
         
         # TODO: Turn into a log later
         print('database deleted')
-        return
+        return not db.exists()
     
-    
+    @property
+    def delete(self) -> function:
+        return self.__delete

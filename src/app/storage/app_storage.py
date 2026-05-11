@@ -13,32 +13,40 @@ from .storage_config import StorageConfig
 
 class AppStorage(StorageConfig):
     def __init__(self, action: str, **kwargs):
-        self.valid_action: bool = self.__validate_data(key='action', value=action)
+        super().__init__(**kwargs)
+        
+        self.valid_action: bool = self.validate_data(key='action', value=action)
         self.action: Optional[str] = action if self.valid_action else None
         
     def __call__(self, func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            db_name: str = func()
-            if not self.__validate_data(key='db_name', value=db_name):
-                raise ConnectionRefusedError(f'There is not database by the name of {db_name}')
+            func(*args, **kwargs)
+            db_name: str = kwargs.get('db_name') or kwargs.get('test_db_name')
             
-            self.__db_name = db_name
-            self.__build_path()
+            if not self.is_test:
+                self.db_name = db_name
+            else:
+                self.test_db_name = db_name
+                
+            self.build_path()
             
             return self.__parse_operation(**kwargs)
         return wrapper
         
     def __parse_operation(self, **kwargs) -> Optional[list[dict]]:
-        actions: dict = {
-            'test': self.__build_path(),
-            'read': self.__read(),
-            'append': self.__append(kwargs.get('data')),
-            'write': self.__write(kwargs.get('data')),
-            'delete': self.__delete()
-        }
-        
-        if self.action is None:
+        if not self.valid_action or self.action is None:
+            # TODO: Replace error
             raise ConnectionAbortedError('The requested action is not available.')
+       
+        if self.action == 'read':
+            return self.read(**kwargs)
         
-        return actions[self.action]
+        if self.action == 'update':
+            return self.update(**kwargs)
+        
+        if self.action == 'write':
+            return self.write(**kwargs)
+        
+        if self.action == 'delete':
+            return self.delete(**kwargs)
