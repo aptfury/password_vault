@@ -133,7 +133,7 @@ class StorageConfig:
         return self.__read
     
     ### UPDATE ###
-    def __update(self, data: dict, **kwargs) -> None:
+    def __update(self, data: dict | None, **kwargs) -> None:
         key: str = kwargs.get('key') or None
         value: str = kwargs.get('value') or None
         
@@ -147,8 +147,9 @@ class StorageConfig:
                     target = entry
 
             file.remove(target)
-            
-        file.append(data)
+        
+        if data is not None:
+            file.append(data)
         
         self.__write(data=file)
         

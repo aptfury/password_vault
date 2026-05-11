@@ -60,6 +60,8 @@ def test_update(tmp_path, app_storage):
     data_set: list = [data]
     
     write_database(test_db_name=test_db_name, data=data_set)
+    
+    # replace entry
     update_database(test_db_name=test_db_name, data=data_two, key='name', value='Lola')
     
     res: list[dict] = read_database(test_db_name=test_db_name)
@@ -67,12 +69,22 @@ def test_update(tmp_path, app_storage):
     assert isinstance(res, list)
     assert data_two in res
     
+    # add entry
     update_database(test_db_name=test_db_name, data=data)
     
     res = read_database(test_db_name=test_db_name)
     
     assert isinstance(res, list)
     assert data_two in res and data in res
+    
+    # remove entry
+    update_database(test_db_name=test_db_name, data=None, key='name', value='blake')
+    
+    res = read_database(test_db_name=test_db_name)
+    
+    assert isinstance(res, list)
+    assert data in res
+    assert not data_two in res
 
 def test_write(tmp_path, app_storage):
     test_db_name: str = 'accounts'
