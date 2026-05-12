@@ -40,7 +40,7 @@ class HashUtils:
         self.__verify_peppers() # verify active peppers
         
         # generate salts
-        salt_bytes, salt = self.__generate_salt()
+        auth_salt_bytes, auth_salt = self.__generate_salt()
         
         # attach pepper
         peppered: str = raw_password + self.__ACCOUNT_PEPPER
@@ -52,7 +52,7 @@ class HashUtils:
         hash_bytes: bytes = hashlib.pbkdf2_hmac(
             'sha256',
             peppered_bytes,
-            salt_bytes,
+            auth_salt_bytes,
             600000
         )
         
@@ -61,19 +61,20 @@ class HashUtils:
         
         if stored_auth is not None:
             return AccountAuthModel(
-                auth_salt=salt,
+                auth_salt=auth_salt,
                 auth_hash=hash_string,
                 vault_id=stored_auth.vault_id,
                 vault_salt=stored_auth.vault_salt
             )
         else:
+            _, vault_salt = self.__generate_salt()
         
             # return account password
             return AccountAuthModel(
-                auth_salt=salt,
+                auth_salt=auth_salt,
                 auth_hash=hash_string,
                 vault_id=None,
-                vault_salt=None
+                vault_salt=vault_salt
             )
         
     def _validate_hash(self, raw_password: str, stored_password: AccountAuthModel) -> bool:
