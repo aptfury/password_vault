@@ -3,3 +3,4 @@ __author__ = 'Blake Lemarr'
 
 from .storage import StorageConfig, AppStorage
 from .models import AccountPasswordModel, AccountModel, VaultEntryModel, VaultModel
+from .repos import AccountRepo

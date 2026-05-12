@@ -5,12 +5,9 @@ DESCRIPTION: An interface for the repositories.
 '''
 
 from abc import ABC, abstractmethod
+from ...storage import AppStorage as app_storage
 
 class IRepository[T](ABC):
-    @abstractmethod
-    def connect(self, dir: str, file: str) -> None:
-        ...
-    
     @abstractmethod
     def create(self, data: T) -> bool:
         ...
@@ -37,10 +34,6 @@ class IRepository[T](ABC):
         
     @abstractmethod
     def update_one_where(self, key: str, value: str) -> bool:
-        ...
-        
-    @abstractmethod
-    def update_all_where(self, key: str, value: str) -> bool:
         ...
         
     @abstractmethod
