@@ -3,7 +3,7 @@ from pathlib import Path
 
 from app.storage import StorageConfig, AppStorage
 from app.repositories import AccountRepo
-from app.utilities import IdentUtils, HashUtils
+from app.utilities import IdentUtils, HashUtils, EncryptUtils
 
 # ---------- storage_config ---------- #
 @pytest.fixture
@@ -65,3 +65,11 @@ def hash_utils() -> HashUtils:
         utils = HashUtils()
         return utils
     return _hash_utils
+
+# ---------- encrypt_utils ---------- #
+@pytest.fixture
+def encrypt_utils() -> EncryptUtils:
+    def _encrypt_utils() -> EncryptUtils:
+        utils = HashUtils()
+        return utils
+    return _encrypt_utils

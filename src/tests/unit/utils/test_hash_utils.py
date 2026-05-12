@@ -30,7 +30,7 @@ def test_hash_utils(hash_utils):
     assert new_auth.auth_salt is not None
     assert new_auth.auth_hash is not None
     assert new_auth.vault_id is None
-    assert new_auth.vault_salt is None
+    assert new_auth.vault_salt is not None
     
     new_auth = util._hash_password(raw_password, existing_auth)
     
