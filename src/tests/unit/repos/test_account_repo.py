@@ -10,7 +10,7 @@ import pytest
 from pathlib import Path
 from datetime import datetime
 
-from app.repos import AccountRepo
+from app.repositories import AccountRepo
 from app.models import AccountModel, AccountPasswordModel
 
 def test_get_raw_data(tmp_path, account_repo):

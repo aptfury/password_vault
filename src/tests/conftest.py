@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 
 from app.storage import StorageConfig, AppStorage
-from app.repos import AccountRepo
+from app.repositories import AccountRepo
 
 # ---------- storage_config ---------- #
 @pytest.fixture
