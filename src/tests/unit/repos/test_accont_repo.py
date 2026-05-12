@@ -69,3 +69,34 @@ def test_create(tmp_path, account_repo):
     created = repo.create(account)
     
     assert created
+    
+def test_get_all(tmp_path, account_repo):
+    
+    ### create data to fetch ###
+    ### TODO: Work on a factory for generating user data ###
+    test_dir: Path = tmp_path / 'database'
+    test_dir.mkdir(parents=True, exist_ok=True)
+    
+    test_path: Path = test_dir / 'accounts.json'
+    
+    password: AccountPasswordModel = AccountPasswordModel(
+        salt='alskdjfalsdf',
+        hash='a_hashed_string_lol'
+    )
+    
+    account: AccountModel = AccountModel(
+        _id='1',
+        name='oogabooga',
+        email='blep@blep.com',
+        password=password,
+        created=datetime.now()
+    )
+    
+    with open(test_path, 'w', encoding='utf-8') as file:
+        json.dump([account.model_dump(mode='json')], file, indent=4)
+    
+    repo = account_repo(is_test=True, test_dir=test_dir)
+    accounts = repo.get_all()
+    
+    assert [isinstance(acc, AccountModel) for acc in accounts]
+    

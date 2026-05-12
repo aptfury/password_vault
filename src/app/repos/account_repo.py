@@ -57,7 +57,9 @@ class AccountRepo(IRepository[AccountModel]):
         Returns:
             list[AccountModel]: Returns a list of user accounts as AccountModels
         """        
-        pass
+        raw_data = self.get_raw_data()
+        
+        return [AccountModel.model_validate(account) for account in raw_data]
 
     def get_id(self, key: str, value: str) -> str:
         pass
