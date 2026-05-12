@@ -195,7 +195,32 @@ class AccountRepo(IRepository[AccountModel]):
         
 
     def delete_all_where(self, key: str, value: str) -> bool:
-        pass
+        """Deletes all user accounts matching the search criteria. - ** will be updated to remove related files **
+        TODO: Ensure cascading deletion when user is removed.
+        TODO: Move to temp_deletion.json for safety for up to 5 days before permanently deleting.
+
+        Args:
+            key (str): The account information to find
+            value (str): The information it should match
+
+        Returns:
+            bool: Delete successful
+        """        
+        users: list[AccountModel] = self.get_all_where(key=key, value=value)
+        
+        if len(users) == 0:
+            raise LookupError('The user could not be found.')
+        
+        user_dumps: list = [user.model_dump(by_alias=True, mode='json') for user in users]
+        
+        for _ in user_dumps:
+            self.delete_one_where(key=key, value=value)
+            
+        raw_data: list[dict] = self.get_raw_data()
+        all_deleted: list[bool] = [user not in raw_data for user in user_dumps]
+        
+        return False not in all_deleted
+        
 
     def delete_database(self) -> bool:
         pass

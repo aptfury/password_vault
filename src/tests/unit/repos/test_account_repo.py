@@ -253,7 +253,19 @@ def test_delete_methods(tmp_path, account_repo):
     assert deleted
     assert not account_one in all_users
     
+    # check errors
     with pytest.raises(LookupError) as lookup_error:
         repo.delete_one_where('name', 'vincent')
         assert lookup_error
     
+    # delete_all_where()
+    all_deleted: bool = repo.delete_all_where('email', 'blep@blep.com')
+    all_users: list[AccountModel] = repo.get_all()
+    
+    assert all_deleted
+    assert [user not in all_users for user in test_accounts]
+    
+    # check errors
+    with pytest.raises(LookupError) as lookup_error:
+        repo.delete_all_where('email', 'blep@blep.com')
+        assert lookup_error
