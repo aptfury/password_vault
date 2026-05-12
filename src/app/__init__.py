@@ -2,5 +2,6 @@ __version__ = '0.0.1'
 __author__ = 'Blake Lemarr'
 
 from .storage import StorageConfig, AppStorage
-from .models import AccountPasswordModel, AccountModel, VaultEntryModel, VaultModel
+from .models import AccountAuthModel, AccountModel, VaultEntryModel, VaultModel
 from .repositories import AccountRepo
+from .utilities import IdentUtils

@@ -8,13 +8,15 @@ from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 
-class AccountPasswordModel(BaseModel):
-    salt: str
-    hash: str
+class AccountAuthModel(BaseModel):
+    auth_salt: str
+    auth_hash: str
+    vault_id: Optional[str]
+    vault_salt: Optional[str]
 
 class AccountModel(BaseModel):
     id: str = Field(alias='_id')
     name: str
     email: Optional[EmailStr]
-    password: AccountPasswordModel
+    password: AccountAuthModel
     created: datetime

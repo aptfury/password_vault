@@ -3,6 +3,7 @@ from pathlib import Path
 
 from app.storage import StorageConfig, AppStorage
 from app.repositories import AccountRepo
+from app.utilities import IdentUtils, HashUtils
 
 # ---------- storage_config ---------- #
 @pytest.fixture
@@ -48,3 +49,19 @@ def account_repo(tmp_path) -> AccountRepo:
         repo = AccountRepo(**config_kwargs)
         return repo
     return _account_repo
+
+# ---------- ident_utils ---------- #
+@pytest.fixture
+def ident_utils() -> IdentUtils:
+    def _ident_utils() -> IdentUtils:
+        utils = IdentUtils()
+        return utils
+    return _ident_utils
+
+# ---------- hash_utils ---------- #
+@pytest.fixture
+def hash_utils() -> HashUtils:
+    def _hash_utils() -> HashUtils:
+        utils = HashUtils()
+        return utils
+    return _hash_utils

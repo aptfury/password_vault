@@ -10,8 +10,7 @@ import pytest
 from pathlib import Path
 from datetime import datetime
 
-from app.repositories import AccountRepo
-from app.models import AccountModel, AccountPasswordModel
+from app.models import AccountModel, AccountAuthModel
 
 def test_get_raw_data(tmp_path, account_repo):
     
@@ -22,9 +21,11 @@ def test_get_raw_data(tmp_path, account_repo):
     
     test_path: Path = test_dir / 'accounts.json'
     
-    password: AccountPasswordModel = AccountPasswordModel(
-        salt='alskdjfalsdf',
-        hash='a_hashed_string_lol'
+    password: AccountAuthModel = AccountAuthModel(
+        auth_salt='alskdjfalsdf',
+        auth_hash='a_hashed_string_lol',
+        vault_id=None,
+        vault_salt=None
     )
     
     account: AccountModel = AccountModel(
@@ -53,9 +54,11 @@ def test_create(tmp_path, account_repo):
     with open(test_path, 'w', encoding='utf-8') as file:
         file.write('[]')
     
-    password: AccountPasswordModel = AccountPasswordModel(
-        salt='alskdjfalsdf',
-        hash='a_hashed_string_lol'
+    password: AccountAuthModel = AccountAuthModel(
+        auth_salt='alskdjfalsdf',
+        auth_hash='a_hashed_string_lol',
+        vault_id=None,
+        vault_salt=None
     )
     
     account: AccountModel = AccountModel(
@@ -80,9 +83,11 @@ def test_get_all(tmp_path, account_repo):
     
     test_path: Path = test_dir / 'accounts.json'
     
-    password: AccountPasswordModel = AccountPasswordModel(
-        salt='alskdjfalsdf',
-        hash='a_hashed_string_lol'
+    password: AccountAuthModel = AccountAuthModel(
+        auth_salt='alskdjfalsdf',
+        auth_hash='a_hashed_string_lol',
+        vault_id=None,
+        vault_salt=None
     )
     
     account: AccountModel = AccountModel(
@@ -110,9 +115,11 @@ def test_get_id_and_get_by_id(tmp_path, account_repo):
     
     test_path: Path = test_dir / 'accounts.json'
     
-    password: AccountPasswordModel = AccountPasswordModel(
-        salt='alskdjfalsdf',
-        hash='a_hashed_string_lol'
+    password: AccountAuthModel = AccountAuthModel(
+        auth_salt='alskdjfalsdf',
+        auth_hash='a_hashed_string_lol',
+        vault_id=None,
+        vault_salt=None
     )
     
     account: AccountModel = AccountModel(
@@ -144,9 +151,11 @@ def test_get_one_where_get_all_where(tmp_path, account_repo):
     
     test_path: Path = test_dir / 'accounts.json'
     
-    password: AccountPasswordModel = AccountPasswordModel(
-        salt='alskdjfalsdf',
-        hash='a_hashed_string_lol'
+    password: AccountAuthModel = AccountAuthModel(
+        auth_salt='alskdjfalsdf',
+        auth_hash='a_hashed_string_lol',
+        vault_id=None,
+        vault_salt=None
     )
     
     account_one: AccountModel = AccountModel(
@@ -212,9 +221,11 @@ def test_delete_methods(tmp_path, account_repo):
     
     test_path: Path = test_dir / 'accounts.json'
     
-    password: AccountPasswordModel = AccountPasswordModel(
-        salt='alskdjfalsdf',
-        hash='a_hashed_string_lol'
+    password: AccountAuthModel = AccountAuthModel(
+        auth_salt='alskdjfalsdf',
+        auth_hash='a_hashed_string_lol',
+        vault_id=None,
+        vault_salt=None
     )
     
     account_one: AccountModel = AccountModel(
