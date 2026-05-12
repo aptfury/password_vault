@@ -62,7 +62,21 @@ class AccountRepo(IRepository[AccountModel]):
         return [AccountModel.model_validate(account) for account in raw_data]
 
     def get_id(self, key: str, value: str) -> str:
-        pass
+        """Returns the account id of the user - for internal use only
+
+        Args:
+            key (str): What you are searching to find the account.
+                       (i.e. name, email, etc.)
+            value (str): The value you are expecting for the account.
+
+        Returns:
+            str: The account id.
+        """
+        raw_data: list[dict] = self.get_raw_data()
+        
+        for account in raw_data:
+            if account[key] == value:
+                return account['_id']
 
     def get_by_id(self, id: str) -> AccountModel:
         pass
