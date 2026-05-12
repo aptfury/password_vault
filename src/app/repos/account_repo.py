@@ -39,7 +39,7 @@ class AccountRepo(IRepository[AccountModel]):
         """        
         # FIX: Currently not worrking
         # transform data
-        user = data.model_dump(mode='json')
+        user = data.model_dump(by_alias=True, mode='json')
         
         if self.is_test:
             update_file(data=user, test_db_name=self.db_name, is_test=self.is_test, test_dir=self.test_dir)
