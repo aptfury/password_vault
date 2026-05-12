@@ -20,10 +20,10 @@ class EncryptUtils:
         self._fernet = None
 
     def set_session_key(self, fernet_key: bytes):
-        self.__fernet = Fernet(fernet_key)
+        self._fernet = Fernet(fernet_key)
         
     def encrypt_vault(self, data: list | dict) -> bytes:
-        if not self.__fernet:
+        if not self._fernet:
             raise PermissionError('You do not have a valid session key. Try signing in again.')
         
         json_data = json.dumps(data).encode('utf-8')

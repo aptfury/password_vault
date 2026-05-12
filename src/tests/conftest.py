@@ -70,6 +70,6 @@ def hash_utils() -> HashUtils:
 @pytest.fixture
 def encrypt_utils() -> EncryptUtils:
     def _encrypt_utils() -> EncryptUtils:
-        utils = HashUtils()
+        utils = EncryptUtils()
         return utils
     return _encrypt_utils
