@@ -4,20 +4,30 @@ DATE: 05.11.26
 DESCRIPTION: Creates database connections.
 '''
 
+from typing import Optional
+
 from ...storage import AppStorage as app_storage
 
-@app_storage(action='read', db_dir='database')
-def read_file(self, db_name: str, **kwargs):
-    pass
+def read_file(**kwargs):
+    @app_storage(action='read', **kwargs)
+    def _read(**kwargs):
+        pass
+    return _read(**kwargs)
 
-@app_storage(action='update', db_dir='database')
-def update_file(self, db_name: str, data: dict, **kwargs):
-    pass
+def update_file(**kwargs):
+    @app_storage(action='update', **kwargs)
+    def _update(**kwargs):
+        pass
+    return _update(**kwargs)
 
-@app_storage(action='write', db_dir='database')
-def write_file(self, db_name: str, data: dict, **kwargs):
-    pass
+def write_file(**kwargs):
+    @app_storage(action='write', **kwargs)
+    def _write(**kwargs):
+        pass
+    return _write(**kwargs)
 
-@app_storage(action='delete', db_dir='database')
-def delete_file(self, db_name: str, **kwargs):
-    pass
+def delete_file(**kwargs):
+    @app_storage(action='delete', **kwargs)
+    def _delete(**kwargs):
+        pass
+    return _delete(**kwargs)

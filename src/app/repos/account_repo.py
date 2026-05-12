@@ -2,100 +2,83 @@
 AUTHOR: Blake Lemarr
 DATE: 05.11.26
 DESCRIPTION: Repository for fetching account information.
+
+TODO: Run tests
 '''
 
 from .config import IRepository
-from .config import read_file, update_file, delete_file
+from .config import read_file, update_file
 
 from ..models import AccountModel
 
 class AccountRepo(IRepository[AccountModel]):
-    def __init__(self):
-        self.db_name = 'accounts'
+    def __init__(self, **kwargs):
+        self.db_name = 'accounts' # file name, must exclude file path
+        self.is_test = kwargs.get('is_test')
+        self.test_dir = kwargs.get('test_dir')
         
     def get_raw_data(self) -> list[dict]:
+        """Retrieves the contents of the 'acconts' file.
+
+        Returns:
+            list[dict]: The list of dictionaries from the file.
+        """        
+        if self.is_test:
+            return read_file(test_db_name=self.db_name, is_test=self.is_test, test_dir=self.test_dir)
+        
         return read_file(db_name=self.db_name)
 
     def create(self, data: AccountModel) -> bool:
+        """Creates a user's account in the database.
+
+        Args:
+            data (AccountModel): The model of the user's account information.
+
+        Returns:
+            bool: Whether the account has been successfully created
+        """        
+        # FIX: Currently not worrking
+        # transform data
+        user = data.model_dump(mode='json')
         
-        update_file(db_name=self.db_name, data=data)
+        if self.is_test:
+            update_file(data=user, test_db_name=self.db_name, is_test=self.is_test, test_dir=self.test_dir)
+        
+        update_file(data=user, db_name=self.db_name)
         
         raw_data: list[dict] = self.get_raw_data()
         
-        return data in raw_data
+        return user in raw_data
+        
 
     def get_all(self) -> list[AccountModel]:
-        raw_data: list[dict] = self.get_raw_data()
-        
-        return [AccountModel.model_validate(account) for account in raw_data]
+        """Retrieves all user accounts from the database.
+
+        Returns:
+            list[AccountModel]: Returns a list of user accounts as AccountModels
+        """        
+        pass
 
     def get_id(self, key: str, value: str) -> str:
-        raw_data: list[dict] = self.get_raw_data()
-        
-        for account in raw_data:
-            if account[key] == value:
-                return account['_id']
+        pass
 
     def get_by_id(self, id: str) -> AccountModel:
-        raw_data: list[dict] = self.get_raw_data()
-        
-        for account in raw_data:
-            if account['_id'] == id:
-                return AccountModel.model_validate(account)
+        pass
 
     def get_one_where(self, key: str, value: str) -> AccountModel:
-        raw_data: list[dict] = self.get_raw_data()
-        
-        for account in raw_data:
-            if account[key] == value:
-                return AccountModel.model_validate(account)
+        pass
 
     def get_all_where(self, key: str, value: str, limit: int | bool = False) -> list[AccountModel]:
-        raw_data: list[dict] = self.get_raw_data()
-        
-        accounts: list[AccountModel] = []
-        
-        for account in raw_data:
-            if account[key] == value:
-                accounts.append(AccountModel.model_validate(account))
-                if limit and len(accounts) >= limit:
-                    break
-                        
-        return accounts   
+        pass
                     
     def update_one_where(self, data: AccountModel, key: str, value: str) -> bool:
-        update_file(db_name=self.db_name, data=data, key=key, value=value)
-        
-        raw_data: list[dict] = self.get_raw_data()
-        for account in raw_data:
-            if account[key] == value:
-                return AccountModel.model_validate(account) == data
+        pass
 
     def delete_one_where(self, key: str, value: str) -> bool:
-        update_file(db_name=self.db_name, data=None, key=key, value=value)
-        
-        raw_data: list[dict] = self.get_raw_data()
-        deleted: bool = True
-
-        for account in raw_data:
-            if account[key] == value:
-                deleted = False
-
-        return deleted
+        pass
 
     def delete_all_where(self, key: str, value: str) -> bool:
-        for _ in self.get_raw_data():
-            update_file(db_name=self.db_name, data=None, key=key, value=value)
-            
-        deleted: bool = True
-
-        raw_data: list[dict] = self.get_raw_data()
-        
-        for account in raw_data:
-            if account[key] == value:
-                deleted = False
-
-        return deleted
+        pass
 
     def delete_database(self) -> bool:
-        return delete_file(db_name=self.db_name)
+        pass

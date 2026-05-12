@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 
 from app.storage import StorageConfig, AppStorage
+from app.repos import AccountRepo
 
 # ---------- storage_config ---------- #
 @pytest.fixture
@@ -21,6 +22,7 @@ def storage_config(tmp_path):
 
     return _storage_config
 
+# ---------- app_storage ---------- #
 @pytest.fixture
 def app_storage(tmp_path):
     def _app_storage(action: str, **kwargs) -> AppStorage:
@@ -33,3 +35,16 @@ def app_storage(tmp_path):
         
         return AppStorage(action=action, **config_kwargs)
     return _app_storage
+
+# ---------- account_repo ---------- #
+@pytest.fixture
+def account_repo(tmp_path) -> AccountRepo:
+    def _account_repo(**kwargs) -> AccountRepo:
+        config_kwargs = {
+            'is_test': True,
+            'test_dir': tmp_path / 'database',
+            **kwargs
+        }
+        repo = AccountRepo(**config_kwargs)
+        return repo
+    return _account_repo

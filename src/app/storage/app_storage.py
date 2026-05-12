@@ -20,13 +20,12 @@ class AppStorage(StorageConfig):
     def __call__(self, func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            func(*args, **kwargs)
             db_name: str = kwargs.get('db_name') or kwargs.get('test_db_name')
             
             if not self.is_test:
-                self.db_name = db_name
+                setattr(self, '_StorageConfig__db_name', db_name)
             else:
-                self.test_db_name = db_name
+                setattr(self, 'test_db_name', db_name)
                 
             self.build_path()
             

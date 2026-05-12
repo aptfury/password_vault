@@ -166,6 +166,7 @@ class StorageConfig:
         
         with open(db, 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=4)
+            file.flush()
             
         # TODO: Turn into a log later
         # REFACTOR: Can probably be combined with __appened()
