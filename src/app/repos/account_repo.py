@@ -178,10 +178,11 @@ class AccountRepo(IRepository[AccountModel]):
             bool: Delete successful
         """        
         user: AccountModel = self.get_one_where(key=key, value=value)
-        user_dump = user.model_dump(by_alias=True, mode='json')
         
         if user is None:
             raise LookupError('The user could not be found.')
+        
+        user_dump = user.model_dump(by_alias=True, mode='json')
         
         if self.is_test:
             update_file(test_db_name=self.db_name, data=None, key=key, value=value, is_test=self.is_test, test_dir=self.test_dir)
