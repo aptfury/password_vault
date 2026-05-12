@@ -185,4 +185,19 @@ def test_get_one_where_get_all_where(tmp_path, account_repo):
     # check that get_one_where does not pull more than one
     user = repo.get_one_where(key='email', value='blep@blep.com')
     
+    assert isinstance(user, AccountModel)
     assert user == account_one
+    
+    # check get_all_where() w/o limit
+    users = repo.get_all_where(key='email', value='blep@blep.com')
+    
+    assert [acc in users for acc in test_accounts]
+    assert [isinstance(acc, AccountModel) for acc in users]
+    
+    # check get_all_where() w/ limit
+    
+    users = repo.get_all_where(key='email', value='blep@blep.com', limit=2)
+    
+    assert len(users) == 2
+    assert len(users) == len(test_accounts) - 1
+    assert [acc in test_accounts for acc in users]

@@ -110,7 +110,27 @@ class AccountRepo(IRepository[AccountModel]):
                 return AccountModel.model_validate(account)
 
     def get_all_where(self, key: str, value: str, limit: int | bool = False) -> list[AccountModel]:
-        pass
+        """Retrieves multiple acounts matching the search criteria
+
+        Args:
+            key (str): The account information to find
+            value (str): The information it should match
+            limit (int | bool, optional): A limit on accounts returned. Defaults to False.
+
+        Returns:
+            list[AccountModel]: The list of accounts matching the search criteria.
+        """        
+        raw_data: list[dict] = self.get_raw_data()
+        accounts: list[AccountModel] = []
+        
+        for account in raw_data:
+            if account[key] == value:
+                accounts.append(AccountModel.model_validate(account))
+                
+                if limit and len(accounts) >= limit:
+                    break
+        
+        return accounts
                     
     def update_one_where(self, data: AccountModel, key: str, value: str) -> bool:
         pass
