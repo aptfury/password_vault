@@ -22,7 +22,7 @@ class AccountRepo(IRepository[AccountModel]):
         
         raw_data: list[dict] = self.get_raw_data()
         
-        return data in res
+        return data in raw_data
 
     def get_all(self) -> list[AccountModel]:
         raw_data: list[dict] = self.get_raw_data()
@@ -43,7 +43,7 @@ class AccountRepo(IRepository[AccountModel]):
             if account['_id'] == id:
                 return AccountModel.model_validate(account)
 
-    def get_one_where(self, key: str, value: str) -> T:
+    def get_one_where(self, key: str, value: str) -> AccountModel:
         raw_data: list[dict] = self.get_raw_data()
         
         for account in raw_data:
