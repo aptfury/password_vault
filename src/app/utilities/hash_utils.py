@@ -1,7 +1,7 @@
 '''
 AUTHOR: Blake Lemarr
 DATE: 05.12.26
-DESCRIPTION: Security utilities for account and data management.
+DESCRIPTION: Hashing utilities for password protection
 '''
 
 # ------------ IMPORTS ------------ #
