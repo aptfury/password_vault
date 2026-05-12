@@ -6,14 +6,14 @@ DESCRIPTION: Models for user account data
 
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 class AccountPasswordModel(BaseModel):
     salt: str
     hash: str
 
 class AccountModel(BaseModel):
-    _id: str
+    id: str = Field(alias='_id')
     name: str
     email: Optional[EmailStr]
     password: AccountPasswordModel
