@@ -269,3 +269,22 @@ def test_delete_methods(tmp_path, account_repo):
     with pytest.raises(LookupError) as lookup_error:
         repo.delete_all_where('email', 'blep@blep.com')
         assert lookup_error
+        
+def test_delete_file(tmp_path, account_repo):
+    
+    ### create data to fetch ###
+    ### TODO: Work on a factory for generating user data ###
+    test_dir: Path = tmp_path / 'database'
+    test_dir.mkdir(parents=True, exist_ok=True)
+    
+    test_path: Path = test_dir / 'accounts.json'
+    
+    with open(test_path, 'w', encoding='utf-8') as file:
+        file.write('[]')
+        
+    repo = account_repo(is_test=True, test_dir=test_dir)
+    deleted: bool = repo.delete_database()
+    
+    assert deleted
+    assert not test_path.exists()
+    assert test_dir.exists()

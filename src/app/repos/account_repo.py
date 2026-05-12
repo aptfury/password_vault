@@ -7,7 +7,7 @@ TODO: Run tests
 '''
 
 from .config import IRepository
-from .config import read_file, update_file
+from .config import read_file, update_file, delete_file
 
 from ..models import AccountModel
 
@@ -223,4 +223,13 @@ class AccountRepo(IRepository[AccountModel]):
         
 
     def delete_database(self) -> bool:
-        pass
+        """Deletes the entire database file.
+
+        Returns:
+            bool: Delete successfull
+        """        
+        if self.is_test:
+            return delete_file(test_db_name=self.db_name, is_test=self.is_test, test_dir=self.test_dir)
+
+        else:
+            return delete_file(db_name=self.db_name)
