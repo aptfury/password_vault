@@ -44,9 +44,13 @@ def test_get_raw_data(tmp_path, account_repo):
 def test_create(tmp_path, account_repo):
 
     test_dir: Path = tmp_path / 'database'
+    test_name: str = 'accounts'
     test_dir.mkdir(parents=True, exist_ok=True)
     
-    test_path: Path = test_dir / 'accounts.json'
+    test_path: Path = test_dir / f'{test_name}.json'
+    
+    with open(test_path, 'w', encoding='utf-8') as file:
+        file.write('[]')
     
     password: AccountPasswordModel = AccountPasswordModel(
         salt='alskdjfalsdf',

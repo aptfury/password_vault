@@ -43,8 +43,8 @@ class AccountRepo(IRepository[AccountModel]):
         
         if self.is_test:
             update_file(data=user, test_db_name=self.db_name, is_test=self.is_test, test_dir=self.test_dir)
-        
-        update_file(data=user, db_name=self.db_name)
+        else:
+            update_file(data=user, db_name=self.db_name)
         
         raw_data: list[dict] = self.get_raw_data()
         
