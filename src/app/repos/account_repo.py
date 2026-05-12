@@ -37,7 +37,6 @@ class AccountRepo(IRepository[AccountModel]):
         Returns:
             bool: Whether the account has been successfully created
         """        
-        # FIX: Currently not worrking
         # transform data
         user = data.model_dump(by_alias=True, mode='json')
         
@@ -133,10 +132,66 @@ class AccountRepo(IRepository[AccountModel]):
         return accounts
                     
     def update_one_where(self, data: AccountModel, key: str, value: str) -> bool:
-        pass
+        """Updates a user's account information based on the search criteria
+
+        Args:
+            data (AccountModel): The data to be inserted.
+            key (str): The account information to find
+            value (str): The information it should match
+
+        Returns:
+            bool: Update successful
+        """
+        user_id: str = self.get_id(key, value)
+        
+        if user_id is None:
+            raise ValueError('No updates could be performed as the ID could not be found.')
+        
+        original_user: AccountModel = self.get_by_id(user_id)
+        
+        if original_user == data:
+            raise ValueError('No updates have been made.')
+        
+        data.id = original_user.id
+        data.created = original_user.created
+        data_dump = data.model_dump(by_alias=True, mode='json')
+
+        if self.is_test:
+            update_file(test_db_name=self.db_name, data=data_dump, key=key, value=value, is_test=self.is_test, test_dir=self.test_dir)
+        else:
+            update_file(db_name=self.db_name, data=data_dump, key=key, value=value)
+        
+        raw_data: list[dict] = self.get_raw_data()
+        
+        return data_dump in raw_data
 
     def delete_one_where(self, key: str, value: str) -> bool:
-        pass
+        """Deletes a user account from the database - ** will be updated to remove related files **
+        TODO: Ensure cascading deletion when user is removed.
+        TODO: Move to temp_deletion.json for safety for up to 5 days before permanently deleting.
+
+        Args:
+            key (str): The account information to find
+            value (str): The information it should match
+
+        Returns:
+            bool: Delete successful
+        """        
+        user: AccountModel = self.get_one_where(key=key, value=value)
+        user_dump = user.model_dump(by_alias=True, mode='json')
+        
+        if user is None:
+            raise LookupError('The user could not be found.')
+        
+        if self.is_test:
+            update_file(test_db_name=self.db_name, data=None, key=key, value=value, is_test=self.is_test, test_dir=self.test_dir)
+        else:
+            update_file(db_name=self.db_name, data=None, key=key, value=value)
+            
+        raw_data: list[dict] = self.get_raw_data()
+        
+        return not user_dump in raw_data
+        
 
     def delete_all_where(self, key: str, value: str) -> bool:
         pass
