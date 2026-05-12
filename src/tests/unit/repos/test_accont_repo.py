@@ -35,7 +35,7 @@ def test_get_raw_data(tmp_path, account_repo):
     )
     
     with open(test_path, 'w', encoding='utf-8') as file:
-        json.dump([account.model_dump(mode='json')], file, indent=4)
+        json.dump([account.model_dump(by_alias=True, mode='json')], file, indent=4)
     
     repo = account_repo(is_test=True, test_dir=test_dir)
     res = repo.get_raw_data()
@@ -93,7 +93,7 @@ def test_get_all(tmp_path, account_repo):
     )
     
     with open(test_path, 'w', encoding='utf-8') as file:
-        json.dump([account.model_dump(mode='json')], file, indent=4)
+        json.dump([account.model_dump(by_alias=True, mode='json')], file, indent=4)
     
     repo = account_repo(is_test=True, test_dir=test_dir)
     accounts = repo.get_all()
