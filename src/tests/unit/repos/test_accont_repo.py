@@ -100,7 +100,7 @@ def test_get_all(tmp_path, account_repo):
     
     assert [isinstance(acc, AccountModel) for acc in accounts]
     
-def test_get_id(tmp_path, account_repo):
+def test_get_id_and_get_by_id(tmp_path, account_repo):
     
     ### create data to fetch ###
     ### TODO: Work on a factory for generating user data ###
@@ -129,3 +129,60 @@ def test_get_id(tmp_path, account_repo):
     id: str = repo.get_id(key='name', value='oogabooga')
     
     assert id == account.id
+    
+    res: AccountModel = repo.get_by_id(id)
+    
+    assert res == account
+    
+def test_get_one_where_get_all_where(tmp_path, account_repo):
+    
+    ### create data to fetch ###
+    ### TODO: Work on a factory for generating user data ###
+    test_dir: Path = tmp_path / 'database'
+    test_dir.mkdir(parents=True, exist_ok=True)
+    
+    test_path: Path = test_dir / 'accounts.json'
+    
+    password: AccountPasswordModel = AccountPasswordModel(
+        salt='alskdjfalsdf',
+        hash='a_hashed_string_lol'
+    )
+    
+    account_one: AccountModel = AccountModel(
+        _id='1',
+        name='oogabooga',
+        email='blep@blep.com',
+        password=password,
+        created=datetime.now()
+    )
+    
+    account_two: AccountModel = AccountModel(
+        _id='2',
+        name='Lola',
+        email='blep@blep.com',
+        password=password,
+        created=datetime.now()
+    )
+    
+    account_three: AccountModel = AccountModel(
+        _id='3',
+        name='alexx',
+        email='blep@blep.com',
+        password=password,
+        created=datetime.now()
+    )
+    
+    test_accounts: list[AccountModel] = [account_one, account_two, account_three]
+    
+    with open(test_path, 'w', encoding='utf-8') as file:
+        json.dump([account.model_dump(by_alias=True, mode='json') for account in test_accounts], file, indent=4)
+    
+    repo = account_repo(is_test=True, test_dir=test_dir)
+    user = repo.get_one_where(key='name', value='alexx')
+    
+    assert user == account_three
+    
+    # check that get_one_where does not pull more than one
+    user = repo.get_one_where(key='email', value='blep@blep.com')
+    
+    assert user == account_one

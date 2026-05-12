@@ -79,10 +79,35 @@ class AccountRepo(IRepository[AccountModel]):
                 return account['_id']
 
     def get_by_id(self, id: str) -> AccountModel:
-        pass
+        """Gets an account by its id
+
+        Args:
+            id (str): The id of the account
+
+        Returns:
+            AccountModel: The account
+        """        
+        raw_data: list[dict] = self.get_raw_data()
+        
+        for account in raw_data:
+            if account['_id'] == id:
+                return AccountModel.model_validate(account)
 
     def get_one_where(self, key: str, value: str) -> AccountModel:
-        pass
+        """Retrieves a user account based on specific query
+
+        Args:
+            key (str): The account information to look at
+            value (str): What the account information should be
+
+        Returns:
+            AccountModel: The user's account
+        """        
+        raw_data: list[dict] = self.get_raw_data()
+        
+        for account in raw_data:
+            if account[key] == value:
+                return AccountModel.model_validate(account)
 
     def get_all_where(self, key: str, value: str, limit: int | bool = False) -> list[AccountModel]:
         pass
