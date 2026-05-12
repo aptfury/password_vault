@@ -93,4 +93,18 @@ class HashUtils:
         hash_string: str = base64.b64encode(hash_bytes).decode('utf-8')
         
         return secrets.compare_digest(hash_string, stored_password.auth_hash)
+    
+    def _generate_session_key(self, raw_password: str, stored_password: AccountAuthModel) -> bytes | str:
+        peppered: str = raw_password + self.__VAULT_PEPPER
+        peppered_bytes: bytes = peppered.encode('utf-8')
         
+        vault_salt_bytes: bytes = base64.b64decode(stored_password.vault_salt)
+        
+        raw_key: bytes = hashlib.pbkdf2_hmac(
+            'sha256',
+            peppered_bytes,
+            vault_salt_bytes,
+            600000
+        )
+        
+        return base64.urlsafe_b64encode(raw_key)
