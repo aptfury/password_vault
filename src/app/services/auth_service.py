@@ -43,11 +43,11 @@ class AuthService:
         user: AccountModel = self.account_repo.get_one_where('name', name)
         
         # check raw_password vs. stored password
-        valid_login: bool = self.hash_utils._validate_hash(raw_password, user.password)
+        valid_login: bool = self.hash_utils._validate_hash(raw_password=raw_password, stored_password=user.password)
         
         # login is valid, begin session
         if valid_login:
-            session_key: bytes = self.hash_utils._generate_session_key()
+            session_key: bytes = self.hash_utils._generate_session_key(raw_password=raw_password, stored_password=user.password)
             
             # open session
             self.encrypt_utils.set_session_key(session_key)
