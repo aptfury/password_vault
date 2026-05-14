@@ -14,7 +14,7 @@ from ..models import VaultModel, VaultEntryModel, AccountModel, AccountAuthModel
 
 from ..utilities import EncryptUtils
 
-from ..services import AuthService
+from ..services.auth_service import AuthService
 
 from .account_repo import AccountRepo
 

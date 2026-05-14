@@ -5,7 +5,7 @@ from faker import Faker
 from app.storage import StorageConfig, AppStorage
 from app.repositories import AccountRepo, VaultRepo
 from app.utilities import IdentUtils, HashUtils, EncryptUtils
-from app.services import AuthService, AccountService
+from app.services import AuthService, AccountService, VaultService
 from app.models import VaultEntryModel, VaultLoginDataModel
 
 # ---------- storage_config ---------- #
@@ -120,15 +120,7 @@ def auth_service(
 
 # ------------ account_service ------------ #
 @pytest.fixture
-def account_service(
-    tmp_path,
-    auth_service
-) -> AccountService:
-    config_kwargs = {
-        'is_test': True,
-        'test_dir': tmp_path / 'database'
-    }
-    
+def account_service(auth_service) -> AccountService:
     service: AccountService = AccountService()
     
     service.auth = auth_service
@@ -139,6 +131,31 @@ def account_service(
     
     return service
 
+# ------------ vault_service ------------ #
+@pytest.fixture
+def vault_service(
+    tmp_path,
+    auth_service,
+    vault_repo,
+    **kwargs
+) -> VaultService:
+    config_kwargs = {
+        'is_test': True,
+        'test_dir': tmp_path / 'database',
+        **kwargs
+    }
+    service: VaultService = vault_repo(**config_kwargs)
+    
+    service.repo = VaultRepo(**config_kwargs)
+    service.auth = auth_service
+    service.acc_repo = auth_service.account_repo
+    service.encrypt = auth_service.encrypt_utils
+    service.hash = auth_service.hash_utils
+    service.id = auth_service.ident_utils
+    
+    return service
+
+# ------------ account_factory ------------ #
 @pytest.fixture
 def account_factory(auth_service):
     def _account_factory():
