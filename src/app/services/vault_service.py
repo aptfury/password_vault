@@ -110,21 +110,50 @@ class VaultService:
             created=str(datetime.now())
         )
         
-        entry.name = input('(Optional - Enter to skip)\nPassword Name: ')
+        entry.name = input('(Optional - Enter to skip)\nPassword Name: ') or None
         
-        entry.website = input('(Optional - Enter to skip)\nWebsite: ')
+        entry.website = input('(Optional - Enter to skip)\nWebsite: ') or None
         
-        entry.login.username = input('(Optional = Enter to skip)\nUsername: ')
+        entry.login.username = input('(Optional = Enter to skip)\nUsername: ') or None
         
-        entry.login.password = input('Password: ')
+        entry.login.password = input('Password: ') or None
 
-        if entry.login.password == '':
+        if entry.login.password is None:
             print('[ALERT!] You must enter a password.')
             
-            entry.login.password = input('Password: ')
+            entry.login.password = input('Password: ') or None
             
-            if entry.login.password == '':
+            if entry.login.password is None:
                 raise ValueError('No password entered; Action aborted.')
+                
+        if (
+            entry.name is None and
+            entry.website is None and
+            entry.login.username is None
+        ):
+            print('WARNING: You did not add a name, website, or username for your password entry.')
+            option: str = input('Would you liked to add one? [y/n]: ')
+            
+            if option == 'y':
+                option: str = input('Which would you liked to add? [Name, Website, Username]: ')
+                
+                if option.lower() == 'name':
+                    entry.name = input('Password Name: ') or None
+                    
+                    if entry.name is None:
+                        raise ValueError('Name was not entered.')
+                
+                if option.lower() == 'website':
+                    entry.website = input('Website: ') or None
+                    
+                    if entry.website is None:
+                        raise ValueError('Website was not entered.')
+                    
+                if option.lower() == 'username':
+                    entry.login.username = input('Username: ') or None
+
+                    if entry.login.username is None:
+                        raise ValueError('Username was not entered.')
                     
         print('You can edit the password any time. Here is the entry ID - it can be used to find the password later, so be sure to save it somewhere safe.')
         print(f'\n#### PASSWORD ID: {entry.id} ####\n')
