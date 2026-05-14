@@ -10,13 +10,9 @@ from pathlib import Path
 from .config import IRepository
 from .config import read_file, update_file, delete_file
 
-from ..models import VaultModel, VaultEntryModel, AccountModel, AccountAuthModel,  VaultLoginDataModel
+from ..models import VaultModel
 
 from ..utilities import EncryptUtils
-
-from ..services.auth_service import AuthService
-
-from .account_repo import AccountRepo
 
 # ------------ VAULT REPO ------------ #
 class VaultRepo(IRepository[VaultModel]):
