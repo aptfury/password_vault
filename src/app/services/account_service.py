@@ -8,10 +8,10 @@ DESCRIPTION: Manages all of the account operations for the application
 import sys
 import secrets
 
-from getpass import getpass
+# from getpass import getpass
 from datetime import datetime
 from pydantic import EmailStr
-from input_with_timeout import input_with_timeout
+# from input_with_timeout import input_with_timeout
 
 from ..models import (
     AccountModel,
@@ -44,7 +44,7 @@ class AccountService:
         
         # ------ user session ------ #
         self.session_id: str = None
-        self.__id: str = None
+        self._id: str = None
         self.name: str = None
         
     def create_account(self) -> None:
@@ -57,11 +57,11 @@ class AccountService:
             # TODO: Add in username exists check - account utils
             # TODO: Add in username valid check - account utils
             # USERNAME should be at least 2 chars and include only letters & digits
-            name = input_with_timeout('Enter a username: ', timeout=10)
+            name = input('Enter a username: ')
             
             if name is None or '':
                 print('You must provide a name/username for the account.')
-                name = input_with_timeout('Enter a username: ', timeout=10)
+                name = input('Enter a username: ')
                 
                 if name is None or '':
                     print('Username was not accepted. Please try again later.')
@@ -78,8 +78,9 @@ class AccountService:
             attempts: int = 1
             
             for attempts in range(3):
-                raw_password: str = input_with_timeout(getpass('Enter a password: '), timeout=10)
-                raw_password_again: str = input_with_timeout(getpass('Re-enter your password: '), timeout=10)
+                # TODO: Hide password when typing it in
+                raw_password: str = input('Enter a password: ')
+                raw_password_again: str = input('Re-enter your password: ')
                 
                 is_match: bool = secrets.compare_digest(raw_password, raw_password_again)
                 
@@ -101,13 +102,14 @@ class AccountService:
             
         try:
             # TODO - Check valid email
-            email: str = input_with_timeout('(OPTIONAL) Enter your email: ', timeout=10)
+            email: str = input('(OPTIONAL) Enter your email: ')
             
         except TimeoutError:
             print('Account creation timed out on email.')
             sys.exit()
             return
             
+    
         created: bool = self.auth.create_account(name=name, raw_password=raw_password, email=email)
         
         if not created:
@@ -140,3 +142,141 @@ class AccountService:
             
             raise SystemError(error_msg)
         
+        return
+        
+    def login(self) -> bool:
+        
+        try:
+            name = input('Enter your username: ')
+            raw_password = input('Enter your password: ')
+                
+            logged_in: bool = self.auth.login(name=name, raw_password=raw_password)
+            
+            if logged_in:
+                user: AccountModel = self.repo.get_one_where('name', name)
+                session_id = self.encrypt._fernet
+                
+                self.session_id = session_id
+                self.name = user.name
+                self._id = user.id
+                
+                print(f'Welcome back, {self.name}!')
+                print(f'user_id: {self._id} || session_id: {self.session_id}')
+                
+                return self.session_id, self.name, self._id
+
+        
+        except TimeoutError:
+            print('TimeoutError: User did not responde in time.')
+            sys.exit()
+            
+            return
+        
+    def account_menu(self):
+        menu_options: str = f'''
+        Start Menu > Main Menu
+        Hello, {self.name}!
+        
+                MAIN MENU
+            -----------------
+        (1) Access Password Vault
+        (2) View Account Details
+        (3) Update Account Details *Password updates not yet supported
+        (4) Log Out
+        (5) Exit
+        '''
+        
+        nav_choice: str = input('What would you like to do? Enter the number: ')
+        
+        if nav_choice == '1':
+            print('In production, please wait!')
+            return
+        if nav_choice == '2':
+            print('In production, please wait!')
+            return
+        if nav_choice == '3':
+            self.update_account()
+            return
+        if nav_choice == '4' or nav_choice == '5':
+            self.logout()
+            return
+        else:
+            print('Invalid selection.')
+            return
+        
+    def view_account(self) -> None:
+        user: AccountModel = self.repo.get_one_where('name', self.name)
+        
+        user_view: str = f'''
+        --------------------------------------
+                USER ACCOUNT DETAILS        
+        --------------------------------------
+        
+        NAME: {user.name}
+        EMAIL: {user.email}
+        CREATED: {user.created}
+        '''
+        
+        print(user_view)
+        return
+        
+    def update_account(self) -> None:
+        update_options: str = '''
+        Which field would you liked to update?
+        
+            (1) Name
+            (2) Email
+        '''
+        
+        print(update_options)
+        
+        field: str = input('\nWhich would you like to update (1 or 2): ')
+        
+        if field == '1' or field == 'Name':
+            name: str = input('Verify your current name: ')
+            new_name: str = input('Enter your new name: ')
+            
+            user: AccountModel = self.repo.get_one_where('name', name)
+            user = user.model_copy(deep=True)
+            user.name = new_name
+
+            updated = self.repo.update_one_where(data=user, key='name', value=name)
+            
+            if updated:
+                self.name = new_name
+                print('UPDATE SUCCESSFUL')
+                return
+            else:
+                raise Exception('USERNAME COULD NOT BE UPDATED')
+            
+        elif field == '2' or field == 'Email':
+            email: str = input('Verify your current email: ')
+            new_email: str = input('Enter your new email: ')
+            
+            user: AccountModel = self.repo.get_one_where('email', email)
+            user = user.model_copy(deep=True)
+            user.email = new_email
+
+            updated = self.repo.update_one_where(data=user, key='email', value=email)
+            
+            if updated:
+                print('UPDATE SUCCESSFUL')
+                return
+            else:
+                raise Exception('EMAIL COULD NOT BE UPDATED')
+            
+        else:
+            print('invalid request')
+            return
+        
+    def logout(self) -> None:
+        confirm: str = input('Confirm logout (y/n): ')
+        
+        if confirm == 'y':
+            self.auth.logout()
+            self._id = None
+            self.session_id = None
+            self.name = None
+            
+            print('Goodbye!')
+            sys.exit()

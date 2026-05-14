@@ -118,17 +118,12 @@ def account_service(
         'test_dir': tmp_path / 'database'
     }
     
-    auth: AuthService = auth_service
-    repo: AccountRepo = account_repo(**config_kwargs)
-    encrypt: EncryptUtils = encrypt_utils()
-    hash: HashUtils = hash_utils()
-    ident: IdentUtils = ident_utils()
-    
     service: AccountService = AccountService()
-    service.auth = auth
-    service.repo = repo
-    service.encrypt = encrypt
-    service.hash = hash
-    service.id = ident
+    
+    service.auth = auth_service
+    service.repo = auth_service.account_repo
+    service.encrypt = auth_service.encrypt_utils
+    service.hash = auth_service.hash_utils
+    service.id = auth_service.ident_utils
     
     return service

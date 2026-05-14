@@ -22,7 +22,7 @@ class AuthService:
         
     def create_account(self, name: str, raw_password: str, email: EmailStr) -> bool:
         # hash user password and create user auth model
-        password: AccountAuthModel = self.hash_utils._hash_password(raw_password, None)
+        password: AccountAuthModel = self.hash_utils._hash_password(raw_password=raw_password, stored_auth=None)
         
         # generate missing vault_id
         password.vault_id = self.ident_utils.generate_lookup_id()
@@ -48,6 +48,7 @@ class AuthService:
         # login is valid, begin session
         if valid_login:
             session_key: bytes = self.hash_utils._generate_session_key(raw_password=raw_password, stored_password=user.password)
+            
             
             # open session
             self.encrypt_utils.set_session_key(session_key)
