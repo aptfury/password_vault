@@ -38,9 +38,9 @@ class VaultService:
         )
         
         # ------ user session ------ #
-        self.session_id: str = None
-        self._id: str = None
-        self.name: str = None
+        # self.session_id: str = None
+        # self._id: str = None
+        # self.name: str = None
         
     def create_vault(self, user: AccountModel) -> None:
         vault = VaultModel(
@@ -59,4 +59,32 @@ class VaultService:
         except Exception as e:
             print(e)
             
-    
+    def vault_menu(self, name: str) -> str | None:
+        menu_options: str = f'''
+        Start Menu > Main Menu > Vault Menu
+        {name}'s Password Vault
+        
+                VAULT MENU
+            ------------------
+        (1) Add Password
+        (2) Find Password
+        (3) View Passwords
+        (4) Manage Passwords
+        (5) Log Out / Exit
+        '''
+        
+        nav_choice: int = int(input('What would you like to do? Enter the number: '))
+        
+        if nav_choice == 1:
+            print('In production!')
+        elif nav_choice == 2:
+            print('In production!')
+        elif nav_choice == 3:
+            print('In production!')
+        elif nav_choice == 4:
+            print('In production!')
+        elif nav_choice == 5:
+            return 'log out'
+        else:
+            print('Invalid selection')
+            return
