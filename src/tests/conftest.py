@@ -144,9 +144,9 @@ def vault_service(
         'test_dir': tmp_path / 'database',
         **kwargs
     }
-    service: VaultService = vault_repo(**config_kwargs)
+    service: VaultService = VaultService()
     
-    service.repo = VaultRepo(**config_kwargs)
+    service.repo = vault_repo(**config_kwargs)
     service.auth = auth_service
     service.acc_repo = auth_service.account_repo
     service.encrypt = auth_service.encrypt_utils
