@@ -48,20 +48,17 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     
     # ------ start add_password() ------ #
     fake_entry: VaultEntryModel = vault_entry_factory()
-    add_pass_full_responses = iter([
-        # '1',
-        fake_entry.name,
-        fake_entry.website,
-        fake_entry.login.username,
-        fake_entry.login.password
+    
+    add_pass = iter([
+        '1',
+        str(fake_entry.name),
+        str(fake_entry.website),
+        str(fake_entry.login.username),
+        str(fake_entry.login.password)
     ])
-    monkeypatch.setattr('builtins.input', lambda _: next(add_pass_full_responses))
+    monkeypatch.setattr('builtins.input', lambda _: next(add_pass))
     
     service.vault_menu(user.name)
-    saved_new_password: bool = service.add_password()
-    
-    assert saved_new_password
-    
     vault: VaultModel = service.repo.get_one_where('user_id', user.id)
-    assert vault.vault[0].name in fake_entry
+    assert vault.vault[0].name == fake_entry.name
     # ------  end add_password()  ------ #
