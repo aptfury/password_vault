@@ -63,7 +63,11 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
         '2',
         'Name',
         'buchstabien',
-        'n'
+        'n',
+        '3',
+        'n',
+        '3',
+        'y'
     ])
     monkeypatch.setattr('builtins.input', lambda _: next(add_pass))
     
@@ -81,3 +85,17 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     
     assert 'RESULTS: 1 of 1' in captured.out
     # ------  end find_password()  ------ #
+    
+    # ------ start view_passwords() ------ #
+    service.vault_menu(user.name)
+    
+    captured = capsys.readouterr()
+    assert 'RESULTS: 1 of 2' in captured.out
+    assert '*' in captured.out
+
+    service.vault_menu(user.name)
+    
+    captured = capsys.readouterr()
+    assert 'RESULTS: 2 of 2' in captured.out
+    assert '*' not in captured.out
+    # ------  end view_passwords()  ------ #

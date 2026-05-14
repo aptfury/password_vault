@@ -88,7 +88,7 @@ class VaultService:
         elif nav_choice == 2:
             self.find_password()
         elif nav_choice == 3:
-            print('In production!')
+            self.view_passwords()
         elif nav_choice == 4:
             print('In production!')
         elif nav_choice == 5:
@@ -225,10 +225,29 @@ class VaultService:
             -------------------------------
             website: {result.website}
             username: {result.login.username}
-            password: {'*' * len(result.login.password) if reveal_pass == 'n' else result.login.password}
+            password: {('*' * len(result.login.password)) if reveal_pass == 'n' else result.login.password}
             ===============================
             '''
             print(template)
             
         return
             
+    def view_passwords(self) -> None:
+        user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
+        reveal_pass: str = input('Reveal password [y/n]?: ')
+        
+        for result in user_vault.vault:
+            template: str = f''''
+            ===============================
+                    RESULTS: {user_vault.vault.index(result) + 1} of {len(user_vault.vault)}
+            -------------------------------
+            id: {result.id}
+            name: {result.name}
+            -------------------------------
+            website: {result.website}
+            username: {result.login.username}
+            password: {('*' * len(result.login.password)) if reveal_pass == 'n' else result.login.password}
+            ===============================
+            '''
+            print(template)
+                        
