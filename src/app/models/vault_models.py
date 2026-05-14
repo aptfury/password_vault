@@ -8,14 +8,19 @@ from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 
-class VaultEntryModel(BaseModel):
-    id: str = Field(alias='_id')
-    name: str
-    website: Optional[str]
+class VaultLoginDataModel(BaseModel):
     username: Optional[str]
     password: str
+
+class VaultEntryModel(BaseModel):
+    id: str = Field(alias='_id')
+    name: Optional[str]
+    website: Optional[str]
+    login: VaultLoginDataModel
     created: datetime
     
 class VaultModel(BaseModel):
+    id: str = Field(alias='_id')
     user_id: str
+    created: datetime
     vault: list[VaultEntryModel]

@@ -1,10 +1,12 @@
 import pytest
 from pathlib import Path
+from faker import Faker
 
 from app.storage import StorageConfig, AppStorage
-from app.repositories import AccountRepo
+from app.repositories import AccountRepo, VaultRepo
 from app.utilities import IdentUtils, HashUtils, EncryptUtils
 from app.services import AuthService, AccountService
+from app.models import VaultEntryModel, VaultLoginDataModel
 
 # ---------- storage_config ---------- #
 @pytest.fixture
@@ -50,6 +52,19 @@ def account_repo(tmp_path) -> AccountRepo:
         repo = AccountRepo(**config_kwargs)
         return repo
     return _account_repo
+
+# ------------ vault_repo ------------#
+@pytest.fixture
+def vault_repo(tmp_path) -> VaultRepo:
+    def _vault_repo(**kwargs):
+        config_kwargs = {
+            'is_test': True,
+            'test_dir': tmp_path / 'database',
+            **kwargs
+        }
+        repo = VaultRepo(**config_kwargs)
+        return repo
+    return _vault_repo
 
 # ---------- ident_utils ---------- #
 @pytest.fixture
@@ -107,11 +122,7 @@ def auth_service(
 @pytest.fixture
 def account_service(
     tmp_path,
-    auth_service,
-    account_repo,
-    encrypt_utils,
-    hash_utils,
-    ident_utils
+    auth_service
 ) -> AccountService:
     config_kwargs = {
         'is_test': True,
@@ -127,3 +138,42 @@ def account_service(
     service.id = auth_service.ident_utils
     
     return service
+
+@pytest.fixture
+def account_factory(auth_service):
+    def _account_factory():
+        fake: Faker = Faker()
+        
+        name: str = fake.user_name()
+        raw_password: str = fake.password()
+        email: str = fake.email()
+        
+        created = auth_service.create_account(name, raw_password, email)
+        
+        if created:
+            user = auth_service.account_repo.get_one_where('name', name)
+            return user, raw_password
+    return _account_factory
+
+@pytest.fixture
+def vault_entry_factory(ident_utils) -> VaultEntryModel:
+    def _vault_entry_factory() -> VaultEntryModel:
+        fake: Faker = Faker()
+        ident: IdentUtils = ident_utils()
+        
+        login: VaultLoginDataModel = VaultLoginDataModel(
+            username=fake.user_name(),
+            password=fake.password()
+        )
+        
+        entry: VaultEntryModel = VaultEntryModel(
+            _id=ident.generate_nano_id(),
+            name=fake.user_name(),
+            website=f'https://www.{fake.user_name()}{fake.domain_name()}',
+            login=login,
+            created=str(fake.date_time_this_month())
+        )
+        
+        return entry
+    
+    return _vault_entry_factory
