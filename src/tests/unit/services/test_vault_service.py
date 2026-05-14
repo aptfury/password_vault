@@ -34,4 +34,11 @@ def test_vault_service(tmp_path, vault_service, account_factory, vault_entry_fac
     logged_in: bool = service.auth.login(name=user.name, raw_password=raw_password)
     
     assert logged_in
+    
+    service.create_vault(user=user)
+    vault: VaultModel = service.repo.get_one_where('user_id', user.id)
+    
+    assert vault.id == user.password.vault_id
+    assert vault.user_id == user.id
+    assert vault.vault == []
     # ------  end create vault  ------ #

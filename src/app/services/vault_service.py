@@ -58,3 +58,5 @@ class VaultService:
                 raise SystemError(f'An error occured and the vault could not be created at this time. (USER_ID: {user.id} | VAULT_ID: {user.password.vault_id})')
         except Exception as e:
             print(e)
+            
+    
