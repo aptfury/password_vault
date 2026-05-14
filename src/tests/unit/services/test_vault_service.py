@@ -16,7 +16,7 @@ from app.models import VaultModel, VaultEntryModel, VaultLoginDataModel
 fake: Faker = Faker()
 
 # ------------ VAULT SERVICE TEST ------------ #
-def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, vault_entry_factory):
+def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, vault_entry_factory, capsys):
     # ------ start database config ------ #
     test_dir: Path = tmp_path / 'database'
     test_dir.mkdir(parents=True, exist_ok=True)
@@ -76,4 +76,8 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     # ------ start find_password() ------ #
     service.vault_menu(user.name)
     service.vault_menu(user.name)
+    
+    captured = capsys.readouterr()
+    
+    assert 'RESULTS: 1 of 1' in captured.out
     # ------  end find_password()  ------ #
