@@ -13,8 +13,10 @@ from faker import Faker
 from pathlib import Path
 from app.models import VaultModel, VaultEntryModel, VaultLoginDataModel
 
+fake: Faker = Faker()
+
 # ------------ VAULT SERVICE TEST ------------ #
-def test_vault_service(tmp_path, vault_service, account_factory, vault_entry_factory):
+def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, vault_entry_factory):
     # ------ start database config ------ #
     test_dir: Path = tmp_path / 'database'
     test_dir.mkdir(parents=True, exist_ok=True)
@@ -43,48 +45,23 @@ def test_vault_service(tmp_path, vault_service, account_factory, vault_entry_fac
     assert vault.user_id == user.id
     assert vault.vault == []
     # ------  end create vault  ------ #
-
-def test_vault_navigation(monkeypatch,vault_service, capsys):
-    """NOTE - TEMPORARY
-            - This is just to make sure that the base is set up properly.
-    """
     
-    # ------ start config ------ #
-    fake: Faker = Faker()
+    # ------ start add_password() ------ #
+    fake_entry: VaultEntryModel = vault_entry_factory()
+    add_pass_full_responses = iter([
+        # '1',
+        fake_entry.name,
+        fake_entry.website,
+        fake_entry.login.username,
+        fake_entry.login.password
+    ])
+    monkeypatch.setattr('builtins.input', lambda _: next(add_pass_full_responses))
     
-    nav_choices = iter(['1', '2', '3', '4', '5', '6'])
-    monkeypatch.setattr('builtins.input', lambda _: next(nav_choices))
+    service.vault_menu(user.name)
+    saved_new_password: bool = service.add_password()
     
-    def output_helper(should_match: str):
-        captured = capsys.readouterr()
-        
-        assert captured.out.removesuffix('\n') == should_match
-    # ------  end config  ------ #
+    assert saved_new_password
     
-    # ------ start vault menu ------ #
-    service = vault_service
-
-    # 1
-    service.vault_menu(name=fake.name_nonbinary())
-    output_helper('In production!')
-    
-    # 2
-    service.vault_menu(name=fake.name_nonbinary())
-    output_helper('In production!')
-    
-    # 3
-    service.vault_menu(name=fake.name_nonbinary())
-    output_helper('In production!')
-    
-    # 4
-    service.vault_menu(name=fake.name_nonbinary())
-    output_helper('In production!')
-    
-    # 5
-    res: str = service.vault_menu(name=fake.name_nonbinary())
-    assert res == 'log out'
-    
-    # 6 - invalid choice
-    service.vault_menu(name=fake.name_nonbinary())
-    output_helper('Invalid selection')
-    # ------  end vault menu  ------ #
+    vault: VaultModel = service.repo.get_one_where('user_id', user.id)
+    assert vault.vault[0].name in fake_entry
+    # ------  end add_password()  ------ #

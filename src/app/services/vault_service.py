@@ -41,6 +41,7 @@ class VaultService:
         # self.session_id: str = None
         # self._id: str = None
         # self.name: str = None
+        self.vault_id: str = None
         
     def create_vault(self, user: AccountModel) -> None:
         vault = VaultModel(
@@ -60,6 +61,12 @@ class VaultService:
             print(e)
             
     def vault_menu(self, name: str) -> str | None:
+        if self.auth.access_granted:
+            user: AccountModel = self.acc_repo.get_one_where('name', name)
+            self.vault_id = user.password.vault_id
+        else:
+            raise PermissionError('ACCESS_FORBIDDEN: If this is an error, please close the application and log in again.')
+        
         menu_options: str = f'''
         Start Menu > Main Menu > Vault Menu
         {name}'s Password Vault
@@ -73,10 +80,11 @@ class VaultService:
         (5) Log Out / Exit
         '''
         
-        nav_choice: int = int(input('What would you like to do? Enter the number: '))
+        print(menu_options)
+        nav_choice: int = int(input('\nWhat would you like to do? Enter the number: '))
         
         if nav_choice == 1:
-            print('In production!')
+            self.add_password()
         elif nav_choice == 2:
             print('In production!')
         elif nav_choice == 3:
@@ -88,3 +96,79 @@ class VaultService:
         else:
             print('Invalid selection')
             return
+        
+    def add_password(self) -> bool:
+        
+        entry: VaultEntryModel = VaultEntryModel(
+            _id=self.id.generate_nano_id(),
+            name='',
+            website='',
+            login=VaultLoginDataModel(
+                username='',
+                password=''
+            ),
+            created=str(datetime.now())
+        )
+        
+        entry.name = input('(Optional - Enter to skip)\nPassword Name: ') or None
+        
+        entry.website = input('(Optional - Enter to skip)\nWebsite: ') or None
+        
+        entry.login.username = input('(Optional = Enter to skip)\nUsername: ') or None
+        
+        entry.login.password = input('Password: ') or None
+
+        if entry.login.password is None:
+            print('[ALERT!] You must enter a password.')
+            
+            entry.login.password = input('Password: ') or None
+            
+            if entry.login.password is None:
+                raise ValueError('No password entered; Action aborted.')
+                
+        if (
+            entry.name is None and
+            entry.website is None and
+            entry.login.username is None
+        ):
+            print('WARNING: You did not add a name, website, or username for your password entry.')
+            option: str = input('Would you liked to add one? [y/n]: ')
+            
+            if option == 'y':
+                option: str = input('Which would you liked to add? [Name, Website, Username]: ')
+                
+                if option.lower() == 'name':
+                    entry.name = input('Password Name: ') or None
+                    
+                    if entry.name is None:
+                        raise ValueError('Name was not entered.')
+                
+                if option.lower() == 'website':
+                    entry.website = input('Website: ') or None
+                    
+                    if entry.website is None:
+                        raise ValueError('Website was not entered.')
+                    
+                if option.lower() == 'username':
+                    entry.login.username = input('Username: ') or None
+
+                    if entry.login.username is None:
+                        raise ValueError('Username was not entered.')
+                    
+        print('You can edit the password any time. Here is the entry ID - it can be used to find the password later, so be sure to save it somewhere safe.')
+        print(f'\n#### PASSWORD ID: {entry.id} ####\n')
+        
+        vault: VaultModel = self.repo.get_by_id(self.vault_id)
+        vault.vault.append(entry)
+        
+        saved: bool = self.repo.update_one_where(vault, '_id', self.vault_id)
+        
+        if saved:
+            print('Password added to vault!')
+            print(f'PASSWORD ENTRY: {json.dumps(entry.model_dump(by_alias=True, mode='json'), indent=4)}')
+            return saved
+        else:
+            raise SystemError('Password could not be saved. Please try again later.')
+        
+    
+            
