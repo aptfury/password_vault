@@ -86,7 +86,7 @@ class VaultService:
         if nav_choice == 1:
             self.add_password()
         elif nav_choice == 2:
-            print('In production!')
+            self.find_password()
         elif nav_choice == 3:
             print('In production!')
         elif nav_choice == 4:
@@ -170,5 +170,65 @@ class VaultService:
         else:
             raise SystemError('Password could not be saved. Please try again later.')
         
-    
+    def find_password(self) -> None:
+        user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
+        look_up_options: list = ['id', 'name', 'website', 'username', 'password']
+        
+        print('You can look up your password using its ID, Name, Website, Username, or the Password itself.')
+        look_up: str = input('Look up by: ')
+        
+        if look_up.lower() not in look_up_options:
+            print('You must select one of the following: ID, Name, Website, Username, Password.')
+            look_up: str = input('Look up by: ')
+            
+            if look_up.lower() not in look_up_options:
+                raise KeyError('User did not submit one of the available look_up keys.')
+            
+        value: str = input(f'Enter the {look_up}: ')
+        
+        search_results: list[VaultEntryModel] = []
+        
+        for entry in user_vault.vault:
+            if look_up.lower() == '_id':
+                if entry.id == value:
+                    search_results.append(entry)
+                    
+            elif look_up.lower() == 'name':
+                if entry.name == value:
+                    search_results.append(entry)
+                    
+            elif look_up.lower() == 'website':
+                if entry.website == value:
+                    search_results.append(entry)
+                    
+            elif look_up.lower() == 'username':
+                if entry.login.username == value:
+                    search_results.append(entry)
+                    
+            elif look_up.lower() == 'password':
+                if entry.login.password == value:
+                    search_results.append(entry)
+            
+        if len(search_results) == 0:
+            print('No entries found.')
+            return
+        
+        reveal_pass: str = input('Would you like the results to show your password [y/n]?: ')
+        
+        for result in search_results:
+            template: str = f''''
+            ===============================
+                    RESULTS: {search_results.index(result) + 1} of {len(search_results)}
+            -------------------------------
+            id: {result.id}
+            name: {result.name}
+            -------------------------------
+            website: {result.website}
+            username: {result.login.username}
+            password: {'*' * len(result.login.password) if reveal_pass == 'n' else result.login.password}
+            ===============================
+            '''
+            print(template)
+            
+        return
             

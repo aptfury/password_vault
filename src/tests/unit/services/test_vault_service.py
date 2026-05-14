@@ -54,11 +54,26 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
         str(fake_entry.name),
         str(fake_entry.website),
         str(fake_entry.login.username),
-        str(fake_entry.login.password)
+        str(fake_entry.login.password),
+        '1',
+        'buchstabien',
+        str(fake_entry.website),
+        str(fake_entry.login.username),
+        str(fake_entry.login.password),
+        '2',
+        'Name',
+        'buchstabien',
+        'n'
     ])
     monkeypatch.setattr('builtins.input', lambda _: next(add_pass))
     
     service.vault_menu(user.name)
+    
     vault: VaultModel = service.repo.get_one_where('user_id', user.id)
     assert vault.vault[0].name == fake_entry.name
     # ------  end add_password()  ------ #
+    
+    # ------ start find_password() ------ #
+    service.vault_menu(user.name)
+    service.vault_menu(user.name)
+    # ------  end find_password()  ------ #
