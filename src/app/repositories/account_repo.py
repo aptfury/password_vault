@@ -14,8 +14,8 @@ from ..models import AccountModel
 class AccountRepo(IRepository[AccountModel]):
     def __init__(self, **kwargs):
         self.db_name = 'accounts' # file name, must exclude file path
-        self.is_test = kwargs.get('is_test')
-        self.test_dir = kwargs.get('test_dir')
+        self.is_test = kwargs.get('is_test') or False
+        self.test_dir = kwargs.get('test_dir') or None
         
     def get_raw_data(self) -> list[dict]:
         """Retrieves the contents of the 'acconts' file.

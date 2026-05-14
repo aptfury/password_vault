@@ -4,7 +4,7 @@ from pathlib import Path
 from app.storage import StorageConfig, AppStorage
 from app.repositories import AccountRepo
 from app.utilities import IdentUtils, HashUtils, EncryptUtils
-from app.services import AuthService
+from app.services import AuthService, AccountService
 
 # ---------- storage_config ---------- #
 @pytest.fixture
@@ -100,5 +100,35 @@ def auth_service(
         hash,
         ident
     )
+    
+    return service
+
+# ------------ account_service ------------ #
+@pytest.fixture
+def account_service(
+    tmp_path,
+    auth_service,
+    account_repo,
+    encrypt_utils,
+    hash_utils,
+    ident_utils
+) -> AccountService:
+    config_kwargs = {
+        'is_test': True,
+        'test_dir': tmp_path / 'database'
+    }
+    
+    auth: AuthService = auth_service
+    repo: AccountRepo = account_repo(**config_kwargs)
+    encrypt: EncryptUtils = encrypt_utils()
+    hash: HashUtils = hash_utils()
+    ident: IdentUtils = ident_utils()
+    
+    service: AccountService = AccountService()
+    service.auth = auth
+    service.repo = repo
+    service.encrypt = encrypt
+    service.hash = hash
+    service.id = ident
     
     return service
