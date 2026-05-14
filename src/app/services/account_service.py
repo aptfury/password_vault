@@ -191,13 +191,13 @@ class AccountService:
         if nav_choice == '1':
             print('In production, please wait!')
             return
-        if nav_choice == '2':
-            print('In production, please wait!')
+        elif nav_choice == '2':
+            self.view_account()
             return
-        if nav_choice == '3':
+        elif nav_choice == '3':
             self.update_account()
             return
-        if nav_choice == '4' or nav_choice == '5':
+        elif nav_choice == '4' or nav_choice == '5':
             self.logout()
             return
         else:

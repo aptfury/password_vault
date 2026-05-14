@@ -13,7 +13,7 @@ from app.models import AccountModel
 # ------------ ACOUNT SERVICE TESTS ------------ #
 def test_account_service(monkeypatch, tmp_path, account_service, account_repo, capsys):
     ################### SERVICE INIT ###################
-    inputs = iter(['ThisName', 'ThisPassword', 'ThisPassword', 'this@email.com', 'ThisName', 'ThisPassword', '1', 'ThisName', 'TestName', '2', 'this@email.com', 'email@test.com', 'y', 'TestName', 'ThisPassword', '3', '1', 'TestName', 'ThisName'])
+    inputs = iter(['ThisName', 'ThisPassword', 'ThisPassword', 'this@email.com', 'ThisName', 'ThisPassword', '1', 'ThisName', 'TestName', '2', 'this@email.com', 'email@test.com', 'y', 'TestName', 'ThisPassword', '1', '2', '3', '1', 'TestName', 'ThisName', '3', '2', 'email@test.com', 'this@email.com', '4', 'y', '5', 'y'])
     
     monkeypatch.setattr('builtins.input', lambda _: next(inputs))
       
@@ -84,4 +84,12 @@ def test_account_service(monkeypatch, tmp_path, account_service, account_repo, c
     account_service.login()
     account_service.account_menu()
     account_service.account_menu()
+    account_service.account_menu()
+    account_service.account_menu()
+    
+    with pytest.raises(SystemExit) as good_exit:
+        account_service.account_menu()
+        account_service.account_menu()
+        assert good_exit
+    
     #################################################
