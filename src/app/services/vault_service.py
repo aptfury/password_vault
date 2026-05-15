@@ -354,3 +354,34 @@ class VaultService:
             return updated
         else:
             return
+        
+    # todo - create test case
+    def delete_passwords(self) -> None:
+        user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
+        delete_ids: str = input('Input one or more IDs of passwords you would like to delete. If you have more than one, separate each by commas: ')
+        
+        to_delete = delete_ids.split(',')
+        entries: list = []
+        
+        if isinstance(to_delete, list) and len(to_delete) > 1:
+            for pass_id in to_delete:
+                for entry in user_vault.vault:
+                    if entry.id == pass_id.strip(' '):
+                        entries.append(entry)
+        else:
+            for entry in user_vault.vault:
+                if entry.id == to_delete[0].strip(' '):
+                    entries.append(entries)
+                    
+        for entry in entries:
+            user_vault.vault.remove(entry)
+            
+        self.repo.update_one_where(user_vault, '_id', self.vault_id)
+        
+    # todo - create test case
+    def delete_vault(self) -> None:
+        self.repo.delete_one_where('_id', self.vault_id)
+        
+    # todo - create test case
+    def logout(self) -> None:
+        self.vault_id = None
