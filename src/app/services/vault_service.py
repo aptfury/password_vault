@@ -38,9 +38,6 @@ class VaultService:
         )
         
         # ------ user session ------ #
-        # self.session_id: str = None
-        # self._id: str = None
-        # self.name: str = None
         self.vault_id: str = None
         
     def create_vault(self, user: AccountModel) -> None:
@@ -68,16 +65,17 @@ class VaultService:
             raise PermissionError('ACCESS_FORBIDDEN: If this is an error, please close the application and log in again.')
         
         menu_options: str = f'''
-        Start Menu > Main Menu > Vault Menu
-        {name}'s Password Vault
-        
+        --------------------------
+        main menu > vault menu
+        --------------------------
                 VAULT MENU
-            ------------------
+        --------------------------
         (1) Add Password
         (2) Find Password
         (3) View Passwords
         (4) Manage Passwords
-        (5) Log Out / Exit
+        (5) Back
+        (6) Log Out
         '''
         
         print(menu_options)
@@ -92,6 +90,8 @@ class VaultService:
         elif nav_choice == 4:
             print('In production!')
         elif nav_choice == 5:
+            return 'back'
+        elif nav_choice == 6:
             return 'log out'
         else:
             print('Invalid selection')
@@ -250,4 +250,107 @@ class VaultService:
             ===============================
             '''
             print(template)
-                        
+    
+    def manage_passwords(self) -> None | str:
+        menu_options: str = f'''
+        --------------------------------
+        vault menu > password manager
+        --------------------------------
+                PASSWORD MANAGER
+        --------------------------------
+        (1) Edit Password
+        (2) Delete Password(s)
+        (3) Delete Vault
+        (4) Back
+        (5) Log Out
+        '''
+        
+        print(menu_options)
+        option: str = input('Make a selection: ')
+        
+        if option == '1':
+            self.edit_password()
+        elif option == '2':
+            print('In production')
+        elif option == '3':
+            print('In production')
+        elif option == '4':
+            return 'back'
+        elif option == '5':
+            return 'log out'
+        
+    def edit_password(self) -> None:
+        user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
+        pass_id: str = input('Enter the ID of the password: ')
+        
+        target: VaultEntryModel = None
+
+        for entry in user_vault.vault:
+            if entry.id == pass_id:
+                target = entry
+        
+        if target is None:
+            raise LookupError('Password not found.')
+        
+        template: str = f'''
+        ===============================
+                    CURRENT
+        -------------------------------
+        id: {target.id}
+        name: {target.name}
+        -------------------------------
+        website: {target.website}
+        username: {target.login.username}
+        password: {target.login.password}
+        ===============================
+        '''
+        print(template)
+        
+        target_copy: VaultEntryModel = target.model_copy(deep=True)
+        
+        print(f'\nCURRENT NAME: {target.name}')
+        target_copy.name = input('(press enter to skip)\nCHANGE NAME: ')
+        
+        print(f'\nCURRENT WEBSITE: {target.website}')
+        target_copy.website = input('(press enter to skip)\nCHANGE WEBSITE: ')
+        
+        print(f'\nCURRENT USERNAME: {target.login.username}')
+        target_copy.login.username = input('(press enter to skip)\nCHANGE USERNAME: ')
+        
+        print(f'\nCURRENT PASSWORD: {target.login.password}')
+        target_copy.login.password = input('(press enter to skip)\nCHANGE PASSWORD: ')
+        
+        if target_copy.name == '':
+            target_copy.name = target.name
+        if target_copy.website == '':
+            target_copy.website = target.website
+        if target_copy.login.username == '':
+            target_copy.login.username = target.login.username
+        if target_copy.login.password == '':
+            target_copy.login.password = target.login.password
+            
+        changes: str = f'''
+        ===============================
+                    CHANGES
+        -------------------------------
+        id: {target_copy.id}
+        name: {target_copy.name}
+        -------------------------------
+        website: {target_copy.website}
+        username: {target_copy.login.username}
+        password: {target_copy.login.password}
+        ===============================
+        '''
+        print(changes)
+        confirm: str = input('Confirm changes [y/n]: ')
+        
+        if confirm == 'y':
+            user_vault.vault.remove(target)
+            user_vault.vault.append(target_copy)
+            updated: bool = self.repo.update_one_where(user_vault, '_id', self.vault_id)
+            
+            if not updated:
+                raise SystemError('Update failed; Please try again later.')
+            return updated
+        else:
+            return

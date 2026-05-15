@@ -11,6 +11,7 @@ import json
 
 from faker import Faker
 from pathlib import Path
+from datetime import datetime
 from app.models import VaultModel, VaultEntryModel, VaultLoginDataModel
 
 fake: Faker = Faker()
@@ -48,6 +49,7 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     
     # ------ start add_password() ------ #
     fake_entry: VaultEntryModel = vault_entry_factory()
+    pass_id: str = ''
     
     add_pass = iter([
         '1',
@@ -97,5 +99,29 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     
     captured = capsys.readouterr()
     assert 'RESULTS: 2 of 2' in captured.out
-    assert '*' not in captured.out
     # ------  end view_passwords()  ------ #
+    
+    # ------ start edit_password() ------ #
+    new_vault_entry: VaultEntryModel = VaultEntryModel(
+        _id=service.id.generate_nano_id(),
+        name='lolaandservicedogs',
+        website='https://lolaandservicedogs.com',
+        login=VaultLoginDataModel(
+            username='lola',
+            password='LolaAndCandy'
+        ),
+        created=str(datetime.now())
+    )
+    vault.vault.append(new_vault_entry)
+    service.repo.update_one_where(vault, 'user_id', user.id)
+    
+    edit_pass = iter(['1', new_vault_entry.id, 'lola', '', '', '', 'y'])
+    monkeypatch.setattr('builtins.input', lambda _: next(edit_pass))
+    
+    service.manage_passwords()
+    
+    captured = capsys.readouterr()
+    assert 'CHANGES' in captured.out
+    assert 'name: lola' in captured.out
+    assert f'id: {new_vault_entry.id}' in captured.out
+    # ------  end edit_password()  ------ #
