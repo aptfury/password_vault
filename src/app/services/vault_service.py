@@ -57,26 +57,28 @@ class VaultService:
         except Exception as e:
             print(e)
             
+    # todo - create a login method
     def vault_menu(self, name: str) -> str | None:
         if self.auth.access_granted:
-            user: AccountModel = self.acc_repo.get_one_where('name', name)
-            self.vault_id = user.password.vault_id
+            if self.vault_id is None:
+                user: AccountModel = self.acc_repo.get_one_where('name', name)
+                self.vault_id = user.password.vault_id
         else:
             raise PermissionError('ACCESS_FORBIDDEN: If this is an error, please close the application and log in again.')
         
         menu_options: str = f'''
-        --------------------------
-        main menu > vault menu
-        --------------------------
-                VAULT MENU
-        --------------------------
-        (1) Add Password
-        (2) Find Password
-        (3) View Passwords
-        (4) Manage Passwords
-        (5) Back
-        (6) Log Out
-        '''
+--------------------------
+main menu > vault menu
+--------------------------
+        VAULT MENU
+--------------------------
+(1) Add Password
+(2) Find Password
+(3) View Passwords
+(4) Manage Passwords
+(5) Back
+(6) Log Out
+'''
         
         print(menu_options)
         nav_choice: int = int(input('\nWhat would you like to do? Enter the number: '))
@@ -88,18 +90,21 @@ class VaultService:
         elif nav_choice == 3:
             self.view_passwords()
         elif nav_choice == 4:
-            self.manage_passwords()
+            pass_nav = self.manage_passwords()
+            
+            if pass_nav == 'back':
+                self.vault_menu(name)
+            elif pass_nav == 'log out':
+                return 'log out'
         elif nav_choice == 5:
             return 'back'
         elif nav_choice == 6:
-            self.logout()
             return 'log out'
         else:
             print('Invalid selection')
-            return
+            self.vault_menu(name)
         
     def add_password(self) -> bool:
-        
         entry: VaultEntryModel = VaultEntryModel(
             _id=self.id.generate_nano_id(),
             name='',
@@ -218,17 +223,17 @@ class VaultService:
         
         for result in search_results:
             template: str = f''''
-            ===============================
-                    RESULTS: {search_results.index(result) + 1} of {len(search_results)}
-            -------------------------------
-            id: {result.id}
-            name: {result.name}
-            -------------------------------
-            website: {result.website}
-            username: {result.login.username}
-            password: {('*' * len(result.login.password)) if reveal_pass == 'n' else result.login.password}
-            ===============================
-            '''
+===============================
+        RESULTS: {search_results.index(result) + 1} of {len(search_results)}
+-------------------------------
+id: {result.id}
+name: {result.name}
+-------------------------------
+website: {result.website}
+username: {result.login.username}
+password: {('*' * len(result.login.password)) if reveal_pass == 'n' else result.login.password}
+===============================
+'''
             print(template)
             
         return
@@ -239,32 +244,32 @@ class VaultService:
         
         for result in user_vault.vault:
             template: str = f''''
-            ===============================
-                    RESULTS: {user_vault.vault.index(result) + 1} of {len(user_vault.vault)}
-            -------------------------------
-            id: {result.id}
-            name: {result.name}
-            -------------------------------
-            website: {result.website}
-            username: {result.login.username}
-            password: {('*' * len(result.login.password)) if reveal_pass == 'n' else result.login.password}
-            ===============================
-            '''
+===============================
+        RESULTS: {user_vault.vault.index(result) + 1} of {len(user_vault.vault)}
+-------------------------------
+id: {result.id}
+name: {result.name}
+-------------------------------
+website: {result.website}
+username: {result.login.username}
+password: {('*' * len(result.login.password)) if reveal_pass == 'n' else result.login.password}
+===============================
+'''
             print(template)
     
     def manage_passwords(self) -> None | str:
         menu_options: str = f'''
-        --------------------------------
-        vault menu > password manager
-        --------------------------------
-                PASSWORD MANAGER
-        --------------------------------
-        (1) Edit Password
-        (2) Delete Password
-        (3) Delete Vault
-        (4) Back
-        (5) Log Out
-        '''
+--------------------------------
+vault menu > password manager
+--------------------------------
+        PASSWORD MANAGER
+--------------------------------
+(1) Edit Password
+(2) Delete Password
+(3) Delete Vault
+(4) Back
+(5) Log Out
+'''
         
         print(menu_options)
         option: str = input('Make a selection: ')
@@ -278,10 +283,10 @@ class VaultService:
         elif option == '4':
             return 'back'
         elif option == '5':
-            self.logout()
             return 'log out'
         else:
-            raise KeyError('Invalid selection.')
+            print('Invalid selection.')
+            self.manage_passwords()
     
     # todo - create bulk edit
     def edit_password(self) -> None:
@@ -298,17 +303,17 @@ class VaultService:
             raise LookupError('Password not found.')
         
         template: str = f'''
-        ===============================
-                    CURRENT
-        -------------------------------
-        id: {target.id}
-        name: {target.name}
-        -------------------------------
-        website: {target.website}
-        username: {target.login.username}
-        password: {target.login.password}
-        ===============================
-        '''
+===============================
+            CURRENT
+-------------------------------
+id: {target.id}
+name: {target.name}
+-------------------------------
+website: {target.website}
+username: {target.login.username}
+password: {target.login.password}
+===============================
+'''
         print(template)
         
         target_copy: VaultEntryModel = target.model_copy(deep=True)
@@ -335,17 +340,17 @@ class VaultService:
             target_copy.login.password = target.login.password
             
         changes: str = f'''
-        ===============================
-                    CHANGES
-        -------------------------------
-        id: {target_copy.id}
-        name: {target_copy.name}
-        -------------------------------
-        website: {target_copy.website}
-        username: {target_copy.login.username}
-        password: {target_copy.login.password}
-        ===============================
-        '''
+===============================
+            CHANGES
+-------------------------------
+id: {target_copy.id}
+name: {target_copy.name}
+-------------------------------
+website: {target_copy.website}
+username: {target_copy.login.username}
+password: {target_copy.login.password}
+===============================
+'''
         print(changes)
         confirm: str = input('Confirm changes [y/n]: ')
         

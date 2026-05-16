@@ -25,6 +25,7 @@ from ..utilities import (
     IdentUtils
 )
 from .auth_service import AuthService
+from .vault_service import VaultService
 from ..repositories import AccountRepo
 
 # ------------ ACCOUNT SERVICE ------------ #
@@ -32,6 +33,7 @@ class AccountService:
     def __init__(self):
         # ------ config ------ #
         self.repo: AccountRepo = AccountRepo()
+        self.vault: VaultService = VaultService()
         self.encrypt: EncryptUtils = EncryptUtils()
         self.hash: HashUtils = HashUtils()
         self.id: IdentUtils = IdentUtils()
@@ -142,10 +144,10 @@ class AccountService:
             
             raise SystemError(error_msg)
         
+        self.vault.create_vault(user=user)
         return
         
     def login(self) -> bool:
-        
         try:
             name = input('Enter your username: ')
             raw_password = input('Enter your password: ')
@@ -174,22 +176,31 @@ class AccountService:
         
     def account_menu(self):
         menu_options: str = f'''
-        Start Menu > Main Menu
-        Hello, {self.name}!
+--------------------------
+start menu > main menu
+--------------------------
+        MAIN MENU
+--------------------------
+Hello, {self.name}!
+What would you like to do?
+
+(1) Access Password Vault
+(2) View Account Details
+(3) Update Account Details *Password updates not yet supported
+(4) Log Out
+(5) Exit
+'''
+        print(menu_options)
         
-                MAIN MENU
-            -----------------
-        (1) Access Password Vault
-        (2) View Account Details
-        (3) Update Account Details *Password updates not yet supported
-        (4) Log Out
-        (5) Exit
-        '''
-        
-        nav_choice: str = input('What would you like to do? Enter the number: ')
+        nav_choice: str = input('\nEnter the number: ')
         
         if nav_choice == '1':
-            print('In production, please wait!')
+            vault_nav = self.vault.vault_menu(self.name)
+            
+            if vault_nav == 'back':
+                self.account_menu()
+            elif vault_nav == 'log out':
+                self.logout()
             return
         elif nav_choice == '2':
             self.view_account()
@@ -202,31 +213,31 @@ class AccountService:
             return
         else:
             print('Invalid selection.')
-            return
+            return self.account_menu()
         
     def view_account(self) -> None:
         user: AccountModel = self.repo.get_one_where('name', self.name)
         
         user_view: str = f'''
-        --------------------------------------
-                USER ACCOUNT DETAILS        
-        --------------------------------------
-        
-        NAME: {user.name}
-        EMAIL: {user.email}
-        CREATED: {user.created}
-        '''
+--------------------------------------
+        USER ACCOUNT DETAILS        
+--------------------------------------
+
+NAME: {user.name}
+EMAIL: {user.email}
+CREATED: {user.created}
+'''
         
         print(user_view)
         return
         
     def update_account(self) -> None:
         update_options: str = '''
-        Which field would you liked to update?
-        
-            (1) Name
-            (2) Email
-        '''
+Which field would you liked to update?
+
+(1) Name
+(2) Email
+'''
         
         print(update_options)
         
@@ -274,6 +285,7 @@ class AccountService:
         
         if confirm == 'y':
             self.auth.logout()
+            self.vault.logout()
             self._id = None
             self.session_id = None
             self.name = None
