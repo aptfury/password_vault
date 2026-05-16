@@ -201,6 +201,7 @@ What would you like to do?
                 self.account_menu()
             elif vault_nav == 'log out':
                 self.logout()
+                return 'log out'
             return
         elif nav_choice == '2':
             self.view_account()
@@ -210,7 +211,7 @@ What would you like to do?
             return
         elif nav_choice == '4' or nav_choice == '5':
             self.logout()
-            return
+            return 'log out'
         else:
             print('Invalid selection.')
             return self.account_menu()
