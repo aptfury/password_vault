@@ -49,7 +49,6 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     
     # ------ start add_password() ------ #
     fake_entry: VaultEntryModel = vault_entry_factory()
-    pass_id = ''
     
     add_pass = iter([
         '1',
@@ -148,6 +147,7 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     # ------  end delete_vault()  ------ #
     
     # ------ start logout() ------ #
+    #          vault menu
     assert service.vault_id == user.password.vault_id
     
     monkeypatch.setattr('builtins.input', lambda _: '6')
@@ -156,6 +156,7 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     assert not service.vault_id == user.password.vault_id
     assert service.vault_id is None
     
+    #       manage passwords
     service.vault_id = user.password.vault_id
     
     mngr_logout = iter(['4', '5'])
