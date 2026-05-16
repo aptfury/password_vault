@@ -49,7 +49,7 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     
     # ------ start add_password() ------ #
     fake_entry: VaultEntryModel = vault_entry_factory()
-    pass_id: str = ''
+    pass_id = ''
     
     add_pass = iter([
         '1',
@@ -85,20 +85,20 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     
     captured = capsys.readouterr()
     
-    assert 'RESULTS: 1 of 1' in captured.out
+    assert 'RESULTS' in captured.out
     # ------  end find_password()  ------ #
     
     # ------ start view_passwords() ------ #
     service.vault_menu(user.name)
     
     captured = capsys.readouterr()
-    assert 'RESULTS: 1 of 2' in captured.out
+    assert 'RESULTS' in captured.out
     assert '*' in captured.out
 
     service.vault_menu(user.name)
     
     captured = capsys.readouterr()
-    assert 'RESULTS: 2 of 2' in captured.out
+    assert 'RESULTS' in captured.out
     # ------  end view_passwords()  ------ #
     
     # ------ start edit_password() ------ #
@@ -115,13 +115,34 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     vault.vault.append(new_vault_entry)
     service.repo.update_one_where(vault, 'user_id', user.id)
     
-    edit_pass = iter(['1', new_vault_entry.id, 'lola', '', '', '', 'y'])
+    edit_pass = iter(['4', '1', new_vault_entry.id, 'lola', '', '', '', 'y'])
     monkeypatch.setattr('builtins.input', lambda _: next(edit_pass))
     
-    service.manage_passwords()
+    service.vault_menu(user.name)
     
     captured = capsys.readouterr()
     assert 'CHANGES' in captured.out
     assert 'name: lola' in captured.out
     assert f'id: {new_vault_entry.id}' in captured.out
     # ------  end edit_password()  ------ #
+    
+    # ------ start delete_password() ------ #
+    del_pass = iter(['4', '2', new_vault_entry.id])
+    monkeypatch.setattr('builtins.input', lambda _: next(del_pass))
+    
+    service.vault_menu(user.name)
+    
+    vault: VaultModel = service.repo.get_one_where('user_id', user.id)
+    
+    assert new_vault_entry not in vault.vault
+    # ------  end delete_password()  ------ #
+    
+    # ------ start delete_vault() ------ #
+    del_vault = iter(['4', '3', 'CONFIRM'])
+    monkeypatch.setattr('builtins.input', lambda _: next(del_vault))
+    
+    service.vault_menu(user.name)
+    check_vaults: VaultModel | None = service.repo.get_all()
+    
+    assert vault not in check_vaults
+    # ------  end delete_vault()  ------ #

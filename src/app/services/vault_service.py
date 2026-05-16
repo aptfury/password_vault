@@ -88,7 +88,7 @@ class VaultService:
         elif nav_choice == 3:
             self.view_passwords()
         elif nav_choice == 4:
-            print('In production!')
+            self.manage_passwords()
         elif nav_choice == 5:
             return 'back'
         elif nav_choice == 6:
@@ -259,7 +259,7 @@ class VaultService:
                 PASSWORD MANAGER
         --------------------------------
         (1) Edit Password
-        (2) Delete Password(s)
+        (2) Delete Password
         (3) Delete Vault
         (4) Back
         (5) Log Out
@@ -271,9 +271,9 @@ class VaultService:
         if option == '1':
             self.edit_password()
         elif option == '2':
-            print('In production')
+            self.delete_password()
         elif option == '3':
-            print('In production')
+            self.delete_vault()
         elif option == '4':
             return 'back'
         elif option == '5':
@@ -356,31 +356,32 @@ class VaultService:
             return
         
     # todo - create test case
-    def delete_passwords(self) -> None:
+    def delete_password(self) -> None:
         user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
-        delete_ids: str = input('Input one or more IDs of passwords you would like to delete. If you have more than one, separate each by commas: ')
+        delete_id: str = input('Password ID: ')
         
-        to_delete = delete_ids.split(',')
-        entries: list = []
+        if delete_id == '':
+            raise ValueError('User did not enter an id.')
         
-        if isinstance(to_delete, list) and len(to_delete) > 1:
-            for pass_id in to_delete:
-                for entry in user_vault.vault:
-                    if entry.id == pass_id.strip(' '):
-                        entries.append(entry)
-        else:
-            for entry in user_vault.vault:
-                if entry.id == to_delete[0].strip(' '):
-                    entries.append(entries)
-                    
-        for entry in entries:
-            user_vault.vault.remove(entry)
+        for entry in user_vault.vault:
+            if entry.id == delete_id:
+                user_vault.vault.remove(entry)
             
         self.repo.update_one_where(user_vault, '_id', self.vault_id)
         
     # todo - create test case
     def delete_vault(self) -> None:
-        self.repo.delete_one_where('_id', self.vault_id)
+        confirm: str = input('Please confirm that you would like to delete the entire vault and all passwords within the vault [CONFIRM/DENY]: ')
+        
+        if confirm.upper() == 'CONFIRM':
+            deleted = self.repo.delete_one_where('_id', self.vault_id)
+            
+            if not deleted:
+                raise SystemError('Ran into an error deleting the vault.')
+            
+            return
+        else:
+            return
         
     # todo - create test case
     def logout(self) -> None:
