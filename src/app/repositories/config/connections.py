@@ -4,30 +4,39 @@ DATE: 05.11.26
 DESCRIPTION: Creates database connections.
 '''
 
-from typing import Optional
-
+# ------------ imports ------------ #
 from ...storage import AppStorage as app_storage
 
-def read_file(**kwargs):
-    @app_storage(action='read', **kwargs)
-    def _read(**kwargs):
-        pass
-    return _read(**kwargs)
+# ------------ accounts ------------ #
+# @app_storage(action='read', db_name='accounts')
+def read_accounts():
+    pass
 
-def update_file(**kwargs):
-    @app_storage(action='update', **kwargs)
-    def _update(**kwargs):
-        pass
-    return _update(**kwargs)
+# @app_storage(action='add', db_name='accounts')
+def add_account(data: str):
+    pass
 
-def write_file(**kwargs):
-    @app_storage(action='write', **kwargs)
-    def _write(**kwargs):
-        pass
-    return _write(**kwargs)
+# @app_storage(action='update', db_name='accounts')
+def update_account(key: str, value: str, data: str):
+    pass
 
-def delete_file(**kwargs):
-    @app_storage(action='delete', **kwargs)
-    def _delete(**kwargs):
-        pass
-    return _delete(**kwargs)
+# @app_storage(action='delete', db_name='accounts')
+def delete_account(key: str, value: str):
+    pass
+
+# ------------ vaults ------------ #
+# @app_storage(action='read', db_name='vaults')
+def read_vaults():
+    pass
+
+# @app_storage(action='add', db_name='vaults')
+def add_vault(data: str):
+    pass
+
+# @app_storage(action='update', db_name='vaults')
+def update_vault(key: str, value: str, data: str):
+    pass
+
+# @app_storage(action='delete', db_name='vaults')
+def delete_vault(key: str, value: str):
+    pass

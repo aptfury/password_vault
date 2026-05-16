@@ -4,193 +4,115 @@ DATE: 05.09.26
 DESCRIPTION: A base class for a storage-based decorator.
 '''
 
+# ------------ imports ------------ #
 import json
-
 from pathlib import Path
-from typing import Optional, Any
 
-# only use through appropriate subclasses
+# ------------ storage_config ------------ #
 class StorageConfig:
-    def __init__(self, **kwargs):
-        ### NOTE: FOR TESTING ONLY ###
-        self.is_test: bool = kwargs.get('is_test', False)
-        self.test_dir: Optional[Path] = kwargs.get('test_dir', None)
-        self.test_db_name: Optional[str] = kwargs.get('test_db_name', None)
-
-        ### Fill in available ###
-        self._db_name: Optional[str] = kwargs.get('db_name', None)
-        self._db_dir: Optional[str] = kwargs.get('db_dir', 'database')
-
-    @property
-    def db_name(self) -> Optional[str]:
-        return self._db_name
-    
-    @property
-    def db_dir(self) -> Optional[str]:
-        return self._db_dir
-
-    ### VALIDATE DATABASE NAME ###
-    def _validate_data(self, **kwargs) -> bool:
-        '''Checks the submitted data against valid data sets'''
-
-        # validation sets
-        valid_data_set: dict = {
-            'action': ['test', 'read', 'update', 'write', 'delete'],
-            'db_name': ['test', 'accounts', 'vaults', 'logs', 'security'],
-            'db_dir': ['test', 'tmp_dir', 'database', 'logs']
-        }
-
-        # key and value pairs as kwargs
-        # add more to be added as needed
-        key: str = kwargs.get('key', None)
-        value: Any = kwargs.get('value', None)
-
-        # return boolean
-        return value in valid_data_set[key]
-
-    @property
-    def validate_data(self) -> function:
-        return self._validate_data
-
-    ### BUILD FILE PATH ###
+    def __init__(self, db_name: str, db_dir: str = 'database'):
+        self.db_name: str = db_name
+        self.db_dir: str = db_dir
+        self.path: Path = self._build_path()
+        
     def _build_path(self) -> Path:
-        '''Builds a path to the database files.'''
+        is_valid: bool = self.validate_data('db_name', self.db_name)
+        
+        try:
+            if is_valid:
+                src_dir: Path = Path(__file__).resolve().parent
+                db_dir: Path = src_dir / self.db_dir
 
-        # returns tests path if tests
-        if self.is_test:
-            if not self._validate_data(key='db_name', value=self.test_db_name):
-                raise ConnectionRefusedError(f'{self.test_db_name} is not a valid database.')
+                db_dir.mkdir(parents=True, exist_ok=True)
+                
+                db_file: Path = db_dir / f'{self.db_name}.json'
+                
+                return db_file
             
-            return self.test_dir / f'{self.test_db_name}.json'
-
-        # starts path creation
-        src_dir: Path = Path(__file__).resolve().parent
-        db_dir: Path = src_dir
-
-        # uses default dir if one was not provided
-        # checks provided dir against allowable dirs
-        #### TODO: change ConnectionRefusedError()
-        # sets moves path to dir if dir is valid
-        if self._db_dir is None:
-            db_dir = db_dir.joinpath('database')
-        else:
-            if not self._validate_data(key='db_dir', value=f'{self._db_dir}'):
-                raise ConnectionRefusedError(f'{self._db_dir} is not a valid directory.')
-
-            db_dir: Path = db_dir.joinpath(self._db_dir)
-
-        # create dir if dir is valid but does not exist
-        if not db_dir.exists() or not db_dir.is_dir():
-            db_dir.mkdir(parents=True, exist_ok=True)
-
-        # checks if db name is None
-        # validates db name against allowed databases
-        #### TODO: change ConnectionRefusedError()
-        if self._db_name is None:
-            raise ConnectionRefusedError('No database name has been provided.')
-        else:
-            if not self._validate_data(key='db_name', value=self._db_name):
-                raise ConnectionRefusedError(f'{self._db_name} is not a valid database.')
-
-        # move path to database file
-        db: Path = db_dir / f'{self._db_name}.json'
-
-        # create database file if valid and none
-        if not db.exists() or not db.is_file():
-            db.touch(exist_ok=True)
-
-        # only return db if path to db intact
-        if db_dir.exists() and db.exists():
-            return db
-        # create issue summary
-        # raise error if no checks passed
-        #### TODO: change FileNotFoundError()
-        else:
-            issue_summary: dict = {
-                'path': str(db),
-                'attempted_rebuild_dir': True,
-                'attempted_rebuild_db': True,
+            else:
+                raise FileNotFoundError(f'Could not find {self.db_name}.json')
+            
+        except Exception as e:
+            print(e)
+        
+    def validate_data(self, key: str, value: str) -> bool:
+        try:
+            valid_data_set: dict = {
+                'action': [
+                    'test',
+                    'read',
+                    'add',
+                    'update',
+                    'delete'
+                ],
+                'db_name': [
+                    'test',
+                    'accounts',
+                    'vaults'
+                ]
             }
             
-            print(issue_summary)
-            raise FileNotFoundError('Failed despite rebuild attempts.')
-
-    @property
-    def build_path(self) -> function:
-        return self._build_path
-
-    ### READ ###
-    def _read(self, **kwargs) -> list[dict]:
-        db: Path = self._build_path()
+            return value in valid_data_set[key]
         
-        with open(db, 'r', encoding='utf-8') as file:
-            # TODO: Turn into a log later
-            print('data accessed')
+        except Exception as e:
+            print(e)
+            
+    def read(self) -> list[dict]:
+        with open(self.path, 'r', encoding='utf-8') as file:
+            # todo = create log
             return json.load(file)
-            
-    @property
-    def read(self) -> function:
-        return self._read
+        
+    def add(self, data: dict) -> bool:
+        file: list[dict] = self.read()
+        
+        file.append(data)
+        
+        written: bool = self.write_file(file)
+        
+        file = None
+        file = self.read()
+        return written and data in file
     
-    ### UPDATE ###
-    def _update(self, data: dict | None, **kwargs) -> None:
-        key: str = kwargs.get('key') or None
-        value: str = kwargs.get('value') or None
+    def update(self, key: str, value: str, data: dict) -> bool:
+        file: list[dict] = self.read()
+        target: dict = None
         
-        file: list[dict] = self._read()
-        
-        if key is not None and value is not None:
-            target: dict = {}
-            
-            for entry in file:
-                if entry[key] == value:
-                    target = entry
+        for item in file:
+            if item[key] == value:
+                target = item
+                break
 
-            file.remove(target)
+        file.remove(target)
+        file.append(data)
         
-        if data is not None:
-            file.append(data)
+        written: bool = self.write_file(file)
         
-        self._write(data=file)
+        file = None
+        file = self.read()
         
-        print('data updated')
-        return
+        return written and data in file
     
-    @property
-    def update(self) -> None:
-        return self._update
-    
-    ### WRITE ###
-    def _write(self, data: dict | list[dict], **kwargs) -> None:
-        db: Path = self._build_path()
-        
-        with open(db, 'w', encoding='utf-8') as file:
-            json.dump(data, file, indent=4)
-            file.flush()
+    def delete(self, key: str, value: str) -> bool:
+        file: list[dict] = self.read()
+        target: dict = None
+
+        for item in file:
+            if item[key] == value:
+                target = item
+                break
             
-        # TODO: Turn into a log later
-        # REFACTOR: Can probably be combined with __appened()
-        # with an arg to call 'a' or 'w' dynamically.
-        print('data overwritten')
-        return
-    
-    @property
-    def write(self) -> function:
-        return self._write
-    
-    ### DELETE ###
-    # Do not use this to delete content, it should
-    # only be used to delete the actual databse file.
-    # If you want to erase all the file contents, use
-    # __write() instead.
-    def _delete(self, **kwargs) -> bool:
-        db: Path = self._build_path()
-        db.unlink(missing_ok=True)
+        file.remove(target)
         
-        # TODO: Turn into a log later
-        print('database deleted')
-        return not db.exists()
-    
-    @property
-    def delete(self) -> function:
-        return self._delete
+        written = self.write_file(file)
+        
+        file = None
+        file = self.read()
+        
+        return written and target not in file
+        
+    def write_file(self, data: list[dict]) -> bool:
+        with open(self.path, 'w', encoding='utf-8') as file:
+            # todo - turn into log
+            json.dump(data, file, indent=4)
+            
+        return data == self.read()

@@ -13,28 +13,23 @@ from src.app.storage.app_storage import AppStorage
 
 # ------------ mock config ------------ #
 @pytest.fixture
-def mock_storage_config(tmp_path, monkeypatch):
-    config: StorageConfig = StorageConfig()
-    mock = MagicMock(wraps=config)
-    
-    def path_builder(*args, **kwargs):
-        return tmp_path / mock._db_dir / f'{mock._db_name}.json'
+def mock_storage(tmp_path, monkeypatch):
+    # def _mock_storage(db_name: str):
+    #     storage: StorageConfig = StorageConfig(db_name=db_name)
+    #     mock = MagicMock(wraps=StorageConfig)
+    #     path = tmp_path / 'database' / f'{db_name}.json'
+        
+    #     storage.path = path
+        
+    #     monkeypatch.setattr(StorageConfig, mock)
+        
+    #     return mock
+    original_init = StorageConfig.__init__
 
-    mock._validate_data.return_value = True
-    mock._build_path.side_effect = path_builder
-    
-    monkeypatch.setattr('src.app.storage.storage_config', mock)
-    
-    return mock
-    
-# ------------ mock app ------------ #
-@pytest.fixture
-def mock_app_storage(monkeypatch, mock_storage_config):
-    
-    def inherit_parent_path(self, *args, **kwargs):
-        mock_storage_config._db_name = self._db_name
-        self._build_path = mock_storage_config._build_path()
-        return self._build_path
-    
-    monkeypatch.setattr(AppStorage, '_build_path', inherit_parent_path)
-    monkeypatch.setattr(AppStorage, '_validate_data', lambda *args, **kwargs: True)
+    def mock_init(self, db_name: str, db_dir: str = 'database'):
+        original_init(self, db_name, db_dir)
+        self.path = tmp_path / db_dir / f'{db_name}.json'
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        
+    monkeypatch.setattr(StorageConfig, '__init__', mock_init)
+        

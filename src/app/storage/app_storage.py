@@ -1,50 +1,44 @@
 '''
 AUTHOR: Blake Lemarr
-DATE: 05.10.26
-DESCRIPTION: A subclass of StorageConfig made to function as a wrapper for
-                repository access.
+DATE: 05.16.26
+DESCRIPTION: Storage decorator for the application.
 '''
 
-from typing import Optional
-from functools import wraps
+# ---------- imports ---------- #
+# from functools import wraps
+# from .storage_config import StorageConfig
 
-from .storage_config import StorageConfig
-
-class AppStorage(StorageConfig):
-    def __init__(self, action: str, **kwargs):
-        super().__init__(db_dir='database', **kwargs)
+class AppStorage():
+    def __init__(self, action: str, db_name: str, db_dir: str = 'database'):
+        # super().__init__(db_name=db_name, db_dir=db_dir)
+        pass
         
-        self.valid_action: bool = self.validate_data(key='action', value=action)
-        self.action: Optional[str] = action if self.valid_action else None
-        
-    def __call__(self, func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            db_name: str = kwargs.get('db_name') or kwargs.get('test_db_name')
-            
-            if not self.is_test:
-                setattr(self, '_StorageConfig__db_name', db_name)
-            else:
-                setattr(self, 'test_db_name', db_name)
+#     def __call__(self, func):
+#         @wraps(func)
+#         def wrapper(**kwargs):
+#             try:
+#                 if self.action == 'read':
+#                     return self.read()
                 
-            self.build_path()
-            
-            return self._parse_operation(**kwargs)
-        return wrapper
-        
-    def _parse_operation(self, **kwargs) -> Optional[list[dict]]:
-        if not self.valid_action or self.action is None:
-            # TODO: Replace error
-            raise ConnectionAborrequested action is not available.')
-       
-        if self.action == 'read':
-            return self.read(**kwargs)
-        
-        if self.action == 'update':
-            return self.update(**kwargs)
-        
-        if self.action == 'write':
-            return self.write(**kwargs)
-        
-        if self.action == 'delete':
-            return self.delete(**kwargs)
+#                 if self.action == 'add':
+#                     data: dict = kwargs.get('data', None)
+#                     return self.add(data)
+                
+#                 if self.action == 'update':
+#                     key: str = kwargs.get('key', None)
+#                     value: str = kwargs.get('value', None)
+#                     data: dict = kwargs.get('data', None)
+                    
+#                     return self.update(key, value, data)
+                
+#                 if self.action == 'delete':
+#                     key: str = kwargs.get('key', None)
+#                     value: str = kwargs.get('value', None)
+                    
+#                     return self.delete(key, value)
+                
+#                 raise ConnectionAbortedError('There was an unknown system error.')
+
+#             except Exception as e:
+#                 print(e)
+#                 return

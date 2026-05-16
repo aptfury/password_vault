@@ -29,6 +29,8 @@ def mock_ident_utils(mocker) -> IdentUtils:
     mocker.patch.object(utils, 'verify_uuid', return_value=True)
     mocker.patch.object(utils, 'verify_trace_id', return_value=True)
     mocker.patch.object(utils, 'verify_nano_id', return_value=True)
+    
+    return utils
         
 # ------------ mock encrypt_utils ------------ #
 @pytest.fixture
