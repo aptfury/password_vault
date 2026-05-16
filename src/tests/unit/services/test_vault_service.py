@@ -146,3 +146,7 @@ def test_vault_service(monkeypatch, tmp_path, vault_service, account_factory, va
     
     assert vault not in check_vaults
     # ------  end delete_vault()  ------ #
+    
+    # ------ start logout() ------ #
+    
+    # ------  end logout()  ------ #

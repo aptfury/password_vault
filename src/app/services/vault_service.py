@@ -92,6 +92,7 @@ class VaultService:
         elif nav_choice == 5:
             return 'back'
         elif nav_choice == 6:
+            self.logout()
             return 'log out'
         else:
             print('Invalid selection')
@@ -277,8 +278,12 @@ class VaultService:
         elif option == '4':
             return 'back'
         elif option == '5':
+            self.logout()
             return 'log out'
-        
+        else:
+            raise KeyError('Invalid selection.')
+    
+    # todo - create bulk edit
     def edit_password(self) -> None:
         user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
         pass_id: str = input('Enter the ID of the password: ')
@@ -355,7 +360,7 @@ class VaultService:
         else:
             return
         
-    # todo - create test case
+    # todo - create bulk delete
     def delete_password(self) -> None:
         user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
         delete_id: str = input('Password ID: ')
@@ -383,6 +388,5 @@ class VaultService:
         else:
             return
         
-    # todo - create test case
     def logout(self) -> None:
         self.vault_id = None
