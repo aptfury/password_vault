@@ -8,6 +8,12 @@ from app.utilities import IdentUtils, HashUtils, EncryptUtils
 from app.services import AuthService, AccountService, VaultService
 from app.models import VaultEntryModel, VaultLoginDataModel
 
+# ---------- pytest config ---------- #
+pytest_plugins = [
+    'tests.conftest_factories',
+    'tests.conftest_mockeries'
+]
+
 # ---------- storage_config ---------- #
 @pytest.fixture
 def storage_config(tmp_path):
