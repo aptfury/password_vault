@@ -29,13 +29,13 @@ class AppStorage(StorageConfig):
                 
             self.build_path()
             
-            return self.__parse_operation(**kwargs)
+            return self._parse_operation(**kwargs)
         return wrapper
         
-    def __parse_operation(self, **kwargs) -> Optional[list[dict]]:
+    def _parse_operation(self, **kwargs) -> Optional[list[dict]]:
         if not self.valid_action or self.action is None:
             # TODO: Replace error
-            raise ConnectionAbortedError('The requested action is not available.')
+            raise ConnectionAborrequested action is not available.')
        
         if self.action == 'read':
             return self.read(**kwargs)

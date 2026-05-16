@@ -18,19 +18,19 @@ class StorageConfig:
         self.test_db_name: Optional[str] = kwargs.get('test_db_name', None)
 
         ### Fill in available ###
-        self.__db_name: Optional[str] = kwargs.get('db_name', None)
-        self.__db_dir: Optional[str] = kwargs.get('db_dir', None)
+        self._db_name: Optional[str] = kwargs.get('db_name', None)
+        self._db_dir: Optional[str] = kwargs.get('db_dir', 'database')
 
     @property
     def db_name(self) -> Optional[str]:
-        return self.__db_name
+        return self._db_name
     
     @property
     def db_dir(self) -> Optional[str]:
-        return self.__db_dir
+        return self._db_dir
 
     ### VALIDATE DATABASE NAME ###
-    def __validate_data(self, **kwargs) -> bool:
+    def _validate_data(self, **kwargs) -> bool:
         '''Checks the submitted data against valid data sets'''
 
         # validation sets
@@ -50,15 +50,15 @@ class StorageConfig:
 
     @property
     def validate_data(self) -> function:
-        return self.__validate_data
+        return self._validate_data
 
     ### BUILD FILE PATH ###
-    def __build_path(self) -> Path:
+    def _build_path(self) -> Path:
         '''Builds a path to the database files.'''
 
         # returns tests path if tests
         if self.is_test:
-            if not self.__validate_data(key='db_name', value=self.test_db_name):
+            if not self._validate_data(key='db_name', value=self.test_db_name):
                 raise ConnectionRefusedError(f'{self.test_db_name} is not a valid database.')
             
             return self.test_dir / f'{self.test_db_name}.json'
@@ -71,13 +71,13 @@ class StorageConfig:
         # checks provided dir against allowable dirs
         #### TODO: change ConnectionRefusedError()
         # sets moves path to dir if dir is valid
-        if self.__db_dir is None:
+        if self._db_dir is None:
             db_dir = db_dir.joinpath('database')
         else:
-            if not self.__validate_data(key='db_dir', value=f'{self.__db_dir}'):
-                raise ConnectionRefusedError(f'{self.__db_dir} is not a valid directory.')
+            if not self._validate_data(key='db_dir', value=f'{self._db_dir}'):
+                raise ConnectionRefusedError(f'{self._db_dir} is not a valid directory.')
 
-            db_dir: Path = db_dir.joinpath(self.__db_dir)
+            db_dir: Path = db_dir.joinpath(self._db_dir)
 
         # create dir if dir is valid but does not exist
         if not db_dir.exists() or not db_dir.is_dir():
@@ -86,14 +86,14 @@ class StorageConfig:
         # checks if db name is None
         # validates db name against allowed databases
         #### TODO: change ConnectionRefusedError()
-        if self.__db_name is None:
+        if self._db_name is None:
             raise ConnectionRefusedError('No database name has been provided.')
         else:
-            if not self.__validate_data(key='db_name', value=self.__db_name):
-                raise ConnectionRefusedError(f'{self.__db_name} is not a valid database.')
+            if not self._validate_data(key='db_name', value=self._db_name):
+                raise ConnectionRefusedError(f'{self._db_name} is not a valid database.')
 
         # move path to database file
-        db: Path = db_dir / f'{self.__db_name}.json'
+        db: Path = db_dir / f'{self._db_name}.json'
 
         # create database file if valid and none
         if not db.exists() or not db.is_file():
@@ -117,11 +117,11 @@ class StorageConfig:
 
     @property
     def build_path(self) -> function:
-        return self.__build_path
+        return self._build_path
 
     ### READ ###
-    def __read(self, **kwargs) -> list[dict]:
-        db: Path = self.__build_path()
+    def _read(self, **kwargs) -> list[dict]:
+        db: Path = self._build_path()
         
         with open(db, 'r', encoding='utf-8') as file:
             # TODO: Turn into a log later
@@ -130,14 +130,14 @@ class StorageConfig:
             
     @property
     def read(self) -> function:
-        return self.__read
+        return self._read
     
     ### UPDATE ###
-    def __update(self, data: dict | None, **kwargs) -> None:
+    def _update(self, data: dict | None, **kwargs) -> None:
         key: str = kwargs.get('key') or None
         value: str = kwargs.get('value') or None
         
-        file: list[dict] = self.__read()
+        file: list[dict] = self._read()
         
         if key is not None and value is not None:
             target: dict = {}
@@ -151,18 +151,18 @@ class StorageConfig:
         if data is not None:
             file.append(data)
         
-        self.__write(data=file)
+        self._write(data=file)
         
         print('data updated')
         return
     
     @property
     def update(self) -> None:
-        return self.__update
+        return self._update
     
     ### WRITE ###
-    def __write(self, data: dict | list[dict], **kwargs) -> None:
-        db: Path = self.__build_path()
+    def _write(self, data: dict | list[dict], **kwargs) -> None:
+        db: Path = self._build_path()
         
         with open(db, 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=4)
@@ -176,15 +176,15 @@ class StorageConfig:
     
     @property
     def write(self) -> function:
-        return self.__write
+        return self._write
     
     ### DELETE ###
     # Do not use this to delete content, it should
     # only be used to delete the actual databse file.
     # If you want to erase all the file contents, use
     # __write() instead.
-    def __delete(self, **kwargs) -> bool:
-        db: Path = self.__build_path()
+    def _delete(self, **kwargs) -> bool:
+        db: Path = self._build_path()
         db.unlink(missing_ok=True)
         
         # TODO: Turn into a log later
@@ -193,4 +193,4 @@ class StorageConfig:
     
     @property
     def delete(self) -> function:
-        return self.__delete
+        return self._delete
