@@ -14,7 +14,13 @@ from ..models import AccountModel, AccountAuthModel, VaultEntryModel, VaultModel
 
 # ------------ AUTH SERVICE ------------ #
 class AuthService:
-    def __init__(self, account_repo: AccountRepo, encrypt_utils: EncryptUtils, hash_utils: HashUtils, ident_utils: IdentUtils):
+    def __init__(
+        self,
+        account_repo: AccountRepo,
+        encrypt_utils: EncryptUtils,
+        hash_utils: HashUtils,
+        ident_utils: IdentUtils
+    ):
         self.account_repo: AccountRepo = account_repo
         self.encrypt_utils: EncryptUtils = encrypt_utils
         self.hash_utils: HashUtils = hash_utils
