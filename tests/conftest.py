@@ -9,6 +9,7 @@ import pytest
 from uuid import uuid4
 from faker import Faker
 from pathlib import Path
+from datetime import datetime
 from src.app.configs.database import Database
 from src.app.repositories.vault_repository import VaultRepo
 from src.app.repositories.account_repository import AccountRepo
@@ -52,3 +53,21 @@ def gen_vault() -> VaultModel:
         )
         return vault
     return _gen_vault
+
+# ------------ account faker ------------ #
+@pytest.fixture
+def gen_account() -> AccountModel:
+    def _account_vault() -> AccountModel:
+        fake: Faker = Faker()
+        account: AccountModel = AccountModel(
+            _id=fake.uuid4(),
+            username=fake.user_name(),
+            email=fake.email(),
+            password=PasswordModel(
+                salt=str(fake.random_letters(18)),
+                hashed=fake.password()
+            ),
+            created=datetime.now()
+        )
+        return account
+    return _account_vault
