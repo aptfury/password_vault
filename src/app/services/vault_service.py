@@ -25,16 +25,14 @@ from ..utilities import EncryptUtils, HashUtils, IdentUtils
 class VaultService:
     def __init__(
         self,
-        vault_repo: VaultRepo,
-        account_repo: AccountRepo,
         encrypt_utils: EncryptUtils,
         hash_utils: HashUtils,
         ident_utils: IdentUtils,
         auth_service: AuthService
     ):
     # ------ config ------ #
-        self.repo: VaultRepo = vault_repo
-        self.account_repo: AccountRepo = account_repo
+        self.repo: VaultRepo = VaultRepo()
+        self.account_repo: AccountRepo = AccountRepo()
         self.encrypt: EncryptUtils = encrypt_utils
         self.hash: HashUtils = hash_utils
         self.id: IdentUtils = ident_utils

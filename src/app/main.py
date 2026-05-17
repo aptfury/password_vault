@@ -7,11 +7,16 @@ DESCRIPTION: The main file for the program that interacts
 
 # ------------ IMPORTS ------------ #
 import sys
-
+from app.utilities.hash_utils import HashUtils
+from app.utilities.ident_utils import IdentUtils
+from app.utilities.encrypt_utils import EncryptUtils
 from app.services.account_service import AccountService
 
 # ------------ MAIN ------------ #
 def main():
+    hash_utils: HashUtils = HashUtils()
+    ident_utils: IdentUtils = IdentUtils()
+    encrypt_utils: EncryptUtils = EncryptUtils()
     accounts: AccountService = AccountService()
     welcome_message = '''
 ------------------------------------------

@@ -32,14 +32,13 @@ from ..repositories import AccountRepo
 class AccountService:
     def __init__(
         self,
-        account_repo: AccountRepo,
         vault_service: VaultService,
         encrypt_utils: EncryptUtils,
         hash_utils: HashUtils,
         ident_utils: IdentUtils,
     ):
         # ------ config ------ #
-        self.repo: AccountRepo = account_repo
+        self.repo: AccountRepo = AccountRepo()
         self.vault: VaultService = vault_service
         self.encrypt: EncryptUtils = encrypt_utils
         self.hash: HashUtils = hash_utils
