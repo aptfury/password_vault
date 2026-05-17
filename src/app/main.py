@@ -7,9 +7,13 @@ DESCRIPTION: The main file for the program that interacts
 
 # ------------ IMPORTS ------------ #
 import sys
+
 from app.utilities.hash_utils import HashUtils
 from app.utilities.ident_utils import IdentUtils
 from app.utilities.encrypt_utils import EncryptUtils
+
+from app.services.auth_service import AuthService
+from app.services.vault_service import VaultService
 from app.services.account_service import AccountService
 
 # ------------ MAIN ------------ #
@@ -17,7 +21,24 @@ def main():
     hash_utils: HashUtils = HashUtils()
     ident_utils: IdentUtils = IdentUtils()
     encrypt_utils: EncryptUtils = EncryptUtils()
-    accounts: AccountService = AccountService()
+    auth_service: AuthService = AuthService(
+        encrypt_utils=encrypt_utils,
+        hash_utils=hash_utils,
+        ident_utils=ident_utils
+    )
+    vaults: VaultService = VaultService(
+        encrypt_utils=encrypt_utils,
+        hash_utils=hash_utils,
+        ident_utils=ident_utils,
+        auth_service=auth_service
+    )
+    accounts: AccountService = AccountService(
+        vault_service=vaults,
+        encrypt_utils=encrypt_utils,
+        hash_utils=hash_utils,
+        ident_utils=ident_utils,
+        auth_service=auth_service
+    )
     welcome_message = '''
 ------------------------------------------
         WELCOME TO PASSWORD VAULT!    
