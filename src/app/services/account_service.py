@@ -30,13 +30,20 @@ from ..repositories import AccountRepo
 
 # ------------ ACCOUNT SERVICE ------------ #
 class AccountService:
-    def __init__(self):
+    def __init__(
+        self,
+        account_repo: AccountRepo,
+        vault_service: VaultService,
+        encrypt_utils: EncryptUtils,
+        hash_utils: HashUtils,
+        ident_utils: IdentUtils,
+    ):
         # ------ config ------ #
-        self.repo: AccountRepo = AccountRepo()
-        self.vault: VaultService = VaultService()
-        self.encrypt: EncryptUtils = EncryptUtils()
-        self.hash: HashUtils = HashUtils()
-        self.id: IdentUtils = IdentUtils()
+        self.repo: AccountRepo = account_repo
+        self.vault: VaultService = vault_service
+        self.encrypt: EncryptUtils = encrypt_utils
+        self.hash: HashUtils = hash_utils
+        self.id: IdentUtils = ident_utils
         self.auth: AuthService = AuthService(
             account_repo=self.repo,
             encrypt_utils=self.encrypt,
