@@ -36,6 +36,7 @@ class AccountService:
         encrypt_utils: EncryptUtils,
         hash_utils: HashUtils,
         ident_utils: IdentUtils,
+        auth_service: AuthService
     ):
         # ------ config ------ #
         self.repo: AccountRepo = AccountRepo()
@@ -43,12 +44,7 @@ class AccountService:
         self.encrypt: EncryptUtils = encrypt_utils
         self.hash: HashUtils = hash_utils
         self.id: IdentUtils = ident_utils
-        self.auth: AuthService = AuthService(
-            account_repo=self.repo,
-            encrypt_utils=self.encrypt,
-            hash_utils=self.hash,
-            ident_utils=self.id
-        )
+        self.auth: AuthService = auth_service
         
         # ------ user session ------ #
         self.session_id: str = None

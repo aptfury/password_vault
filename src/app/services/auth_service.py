@@ -8,7 +8,7 @@ DESCRIPTION: Manages all the authorization for using the application
 from pydantic import EmailStr
 from datetime import datetime
 
-from ..repositories import AccountRepo
+from ..repositories import AccountRepo, VaultRepo
 from ..utilities import EncryptUtils, HashUtils, IdentUtils
 from ..models import AccountModel, AccountAuthModel, VaultEntryModel, VaultModel
 
@@ -21,6 +21,7 @@ class AuthService:
         ident_utils: IdentUtils
     ):
         self.account_repo: AccountRepo = AccountRepo()
+        self.vault_repo: VaultRepo = VaultRepo()
         self.encrypt_utils: EncryptUtils = encrypt_utils
         self.hash_utils: HashUtils = hash_utils
         self.ident_utils: IdentUtils = ident_utils
