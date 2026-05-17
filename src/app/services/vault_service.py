@@ -23,19 +23,22 @@ from ..utilities import EncryptUtils, HashUtils, IdentUtils
 
 # ------------ VAULT SERVICE ------------ #
 class VaultService:
-    def __init__(self):
+    def __init__(
+        self,
+        vault_repo: VaultRepo,
+        account_repo: AccountRepo,
+        encrypt_utils: EncryptUtils,
+        hash_utils: HashUtils,
+        ident_utils: IdentUtils,
+        auth_service: AuthService
+    ):
     # ------ config ------ #
-        self.repo: VaultRepo = VaultRepo()
-        self.acc_repo: AccountRepo = AccountRepo()
-        self.encrypt: EncryptUtils = EncryptUtils()
-        self.hash: HashUtils = HashUtils()
-        self.id: IdentUtils = IdentUtils()
-        self.auth: AuthService = AuthService(
-            account_repo=self.acc_repo,
-            encrypt_utils=self.encrypt,
-            hash_utils=self.hash,
-            ident_utils=self.id
-        )
+        self.repo: VaultRepo = vault_repo
+        self.account_repo: AccountRepo = account_repo
+        self.encrypt: EncryptUtils = encrypt_utils
+        self.hash: HashUtils = hash_utils
+        self.id: IdentUtils = ident_utils
+        self.auth: AuthService = auth_service
         
         # ------ user session ------ #
         self.vault_id: str = None
@@ -61,7 +64,7 @@ class VaultService:
     def vault_menu(self, name: str) -> str | None:
         if self.auth.access_granted:
             if self.vault_id is None:
-                user: AccountModel = self.acc_repo.get_one_where('name', name)
+                user: AccountModel = self.account_repo.get_one_where('name', name)
                 self.vault_id = user.password.vault_id
         else:
             raise PermissionError('ACCESS_FORBIDDEN: If this is an error, please close the application and log in again.')

@@ -148,7 +148,7 @@ def vault_service(
     
     service.repo = vault_repo(**config_kwargs)
     service.auth = auth_service
-    service.acc_repo = auth_service.account_repo
+    service.account_repo = auth_service.account_repo
     service.encrypt = auth_service.encrypt_utils
     service.hash = auth_service.hash_utils
     service.id = auth_service.ident_utils
