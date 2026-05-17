@@ -23,16 +23,16 @@ class AppStorage(StorageConfig):
             db_name: str = kwargs.get('db_name') or kwargs.get('test_db_name')
             
             if not self.is_test:
-                setattr(self, '_StorageConfig__db_name', db_name)
+                setattr(self, 'db_name', db_name)
             else:
                 setattr(self, 'test_db_name', db_name)
                 
             self.build_path()
             
-            return self.__parse_operation(**kwargs)
+            return self.parse_operation(**kwargs)
         return wrapper
         
-    def __parse_operation(self, **kwargs) -> Optional[list[dict]]:
+    def parse_operation(self, **kwargs) -> Optional[list[dict]]:
         if not self.valid_action or self.action is None:
             # TODO: Replace error
             raise ConnectionAbortedError('The requested action is not available.')

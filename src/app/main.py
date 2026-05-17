@@ -66,7 +66,8 @@ Select an option to get started:
     
     elif selection == '3':
         print('\nThanks for stopping by!')
-        return sys.exit()
+        sys.exit()
+        return
     
     else:
         print(f'INVALID OPTION: {selection}')
