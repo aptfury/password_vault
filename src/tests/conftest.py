@@ -11,9 +11,7 @@ from app.models import VaultEntryModel, VaultLoginDataModel
 # ---------- storage_config ---------- #
 @pytest.fixture
 def storage_config(tmp_path):
-
     def _storage_config(**kwargs) -> StorageConfig:
-
         config_kwargs = {
             'is_test': True,
             'test_dir': tmp_path,
@@ -21,9 +19,7 @@ def storage_config(tmp_path):
             **kwargs
         }
 
-
         return StorageConfig(**config_kwargs)
-
     return _storage_config
 
 # ---------- app_storage ---------- #
@@ -50,6 +46,7 @@ def account_repo(tmp_path) -> AccountRepo:
             **kwargs
         }
         repo = AccountRepo(**config_kwargs)
+        
         return repo
     return _account_repo
 
@@ -63,6 +60,7 @@ def vault_repo(tmp_path) -> VaultRepo:
             **kwargs
         }
         repo = VaultRepo(**config_kwargs)
+        
         return repo
     return _vault_repo
 
@@ -94,6 +92,7 @@ def encrypt_utils() -> EncryptUtils:
 @pytest.fixture
 def auth_service(
     tmp_path,
+    vault_repo,
     account_repo,
     encrypt_utils,
     hash_utils,
@@ -104,17 +103,20 @@ def auth_service(
         'test_dir': tmp_path / 'database'
     }
     
-    repo: AccountRepo = account_repo(**config_kwargs)
+    vault_repo: VaultRepo = vault_repo(**config_kwargs)
+    account_repo: AccountRepo = account_repo(**config_kwargs)
     encrypt: EncryptUtils = encrypt_utils()
     hash: HashUtils = hash_utils()
     ident: IdentUtils = ident_utils()
     
     service: AuthService = AuthService(
-        repo,
         encrypt,
         hash,
         ident
     )
+    
+    service.vault_repo = vault_repo
+    service.account_repo = account_repo
     
     return service
 

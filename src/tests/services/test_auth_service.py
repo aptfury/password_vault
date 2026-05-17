@@ -8,7 +8,7 @@ import json
 
 from pydantic import EmailStr
 
-from app.models import AccountModel, AccountAuthModel
+from app.models import AccountModel
 
 def test_auth_service(tmp_path, auth_service):
     tmp_dir = tmp_path / 'database'
