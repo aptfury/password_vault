@@ -10,8 +10,8 @@ from src.app.repositories.account_repository import AccountRepo
 
 # ------------ class ------------ #
 class TestAccountRepository:
-    def test_create(self, account_repo, gen_account):
-        account: AccountModel = gen_account()
+    def test_create(self, account_repo, generate_user):
+        account, _ = generate_user()
         repo: AccountRepo = account_repo
         repo.db.initialized()
         
@@ -19,8 +19,8 @@ class TestAccountRepository:
         
         assert success
 
-    def test_get(self, account_repo, gen_account):
-        account: AccountModel = gen_account()
+    def test_get(self, account_repo, generate_user):
+        account, _ = generate_user()
         repo: AccountRepo = account_repo
         repo.db.initialized()
         
@@ -32,8 +32,8 @@ class TestAccountRepository:
         
         assert account == res
         
-    def test_get_id(self, account_repo, gen_account):
-        account: AccountModel = gen_account()
+    def test_get_id(self, account_repo, generate_user):
+        account, _ = generate_user()
         repo: AccountRepo = account_repo
         repo.db.initialized()
         
@@ -45,8 +45,8 @@ class TestAccountRepository:
         
         assert account.id == res
         
-    def test_update(self, account_repo, gen_account):
-        account: AccountModel = gen_account()
+    def test_update(self, account_repo, generate_user):
+        account, _ = generate_user()
         repo: AccountRepo = account_repo
         repo.db.initialized()
         
@@ -54,7 +54,7 @@ class TestAccountRepository:
         
         assert success
         
-        account_two: AccountModel = gen_account()
+        account_two, _ = generate_user()
         account_two.id = account.id
         account_two.email = account.email
         account_two.password = account.password
@@ -64,8 +64,8 @@ class TestAccountRepository:
         
         assert success
 
-    def test_delete(self, account_repo, gen_account):
-        account: AccountModel = gen_account()
+    def test_delete(self, account_repo, generate_user):
+        account, _ = generate_user()
         repo: AccountRepo = account_repo
         repo.db.initialized()
         
