@@ -5,8 +5,7 @@ DESCRIPTION: The main script.
 '''
 
 # ------------ imports ------------ #
-from .services import AuthService
-from .services import SessionService
+from .services import AuthService, SessionService
 
 # ------------ class ------------ #
 def main():
