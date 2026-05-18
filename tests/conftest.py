@@ -76,6 +76,18 @@ def generate_user(security) -> VaultModel:
     
     return _generate_user
 
+# ------------ entry faker ------------ #
+def generate_vault_entries() -> EntryModel:
+    def _generate_vault_entries() -> EntryModel:
+        fake: Faker = Faker()
+        entry: EntryModel = EntryModel(
+            website=fake.url(),
+            username=fake.user_name(),
+            _password=fake.password()
+        )
+        return entry
+    return _generate_vault_entries
+
 # ------------ security utilities ------------ #
 @pytest.fixture
 def security() -> SecurityUtilities:
