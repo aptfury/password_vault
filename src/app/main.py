@@ -5,10 +5,12 @@ DESCRIPTION: The main script.
 '''
 
 # ------------ imports ------------ #
-
+from .services import AuthService
+from .services import SessionService
 
 # ------------ class ------------ #
 def main():
-    pass
+    session: SessionService = SessionService()
+    auth: AuthService = AuthService(session=session)
 
 main()
