@@ -9,6 +9,7 @@ import pytest
 from faker import Faker
 from pathlib import Path
 from datetime import datetime
+from unittest.mock import MagicMock
 from src.app.configs.database import Database
 from src.app.repositories.vault_repository import VaultRepo
 from src.app.repositories.account_repository import AccountRepo
@@ -33,15 +34,13 @@ def tmp_database(tmp_path) -> Database:
 # ------------ account repo ------------ #
 @pytest.fixture
 def account_repo(tmp_database) -> AccountRepo:
-    repo: AccountRepo = AccountRepo()
-    repo.db = tmp_database
+    repo: AccountRepo = AccountRepo(database=tmp_database)
 
     return repo
 
 @pytest.fixture
 def vault_repo(tmp_database) -> VaultRepo:
-    repo: VaultRepo = VaultRepo()
-    repo.db = tmp_database
+    repo: VaultRepo = VaultRepo(database=tmp_database)
 
     return repo
 
@@ -51,8 +50,7 @@ def gen_vault() -> VaultModel:
     def _gen_vault() -> VaultModel:
         fake: Faker = Faker()
         vault: VaultModel = VaultModel(
-            _id=fake.uuid4(),
-            vault=[]
+            salt=fake.uuid4()
         )
         
         return vault
@@ -95,10 +93,8 @@ def session() -> SessionService:
 
 # ------------ auth service ------------ #
 @pytest.fixture
-def auth(session, account_repo, vault_repo, security) -> AuthService:
-    auth: AuthService = AuthService(session=session)
-    auth.account = account_repo
-    auth.vault = vault_repo
-    auth.utils = security
+def auth(session, account_repo, vault_repo, security, monkeypatch) -> AuthService:
+    auth: AuthService = AuthService(session=session, account_repo=account_repo, vault_repo=vault_repo)
+    monkeypatch.setattr(auth, 'utils', security)
 
     return auth
