@@ -47,9 +47,9 @@ def vault_repo(tmp_database) -> VaultRepo:
 # ------------ vault faker ------------ #
 @pytest.fixture
 def generate_user(security) -> VaultModel:
-    def _generate_user(password: str) -> VaultModel:
+    def _generate_user(password: str = None) -> VaultModel:
         fake: Faker = Faker()
-        raw_password: str = password or fake.password()
+        raw_password: str = password if password is not None else fake.password()
         account: AccountModel = AccountModel(
             username=fake.user_name(),
             email=fake.email(),
