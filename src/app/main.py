@@ -80,4 +80,5 @@ Select an option to get started:
             print('\nSession aborted.')
             return sys.exit()
 
-main()
+if __name__ == '__main__':
+    main()
