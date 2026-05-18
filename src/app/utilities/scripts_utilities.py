@@ -39,8 +39,10 @@ class ScriptsUtilities:
         (1) Access Password Vault
         (2) View Account
         (3) Edit Account
-        (4) Delete Account
         (5) Log Out
+        
+        -- DANGER --
+        (9) Delete Account
         '''
         
         print(script)
