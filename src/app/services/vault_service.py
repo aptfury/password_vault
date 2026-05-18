@@ -144,7 +144,7 @@ class VaultService:
         if target is None:
             return None
         
-        vault.remove(target)
+        vault.vault.remove(target)
         
         deleted: bool = self.repo.update('_id', vault.id, vault)
         
