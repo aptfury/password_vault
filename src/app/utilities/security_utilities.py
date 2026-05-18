@@ -84,6 +84,9 @@ class SecurityUtilities:
         self.__fernet = Fernet(key)
         
         return
+    
+    def session_is_active(self):
+        return self.__fernet is not None
 
     def encrypt_vault(self, data: list) -> bytes:
         json_data: bytes = json.dumps(data).encode('utf-8')
