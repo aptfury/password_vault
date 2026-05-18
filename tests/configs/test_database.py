@@ -11,12 +11,12 @@ from src.app.configs.database import Database
 
 # ------------ class ------------ #
 class TestDatabase:
-    def test_initialized(self, tmp_database):
-        db: Database = tmp_database
+    def test_initialized(self, account_database):
+        db: Database = account_database
         assert db.initialized()
         
-    def test_read(self, tmp_database):
-        db: Database = tmp_database
+    def test_read(self, account_database):
+        db: Database = account_database
         assert db.initialized()
         
         data: dict = {
@@ -31,8 +31,8 @@ class TestDatabase:
         
         assert data in returned_data
         
-    def test_add(self, tmp_database):
-        db: Database = tmp_database
+    def test_add(self, account_database):
+        db: Database = account_database
         assert db.initialized()
         
         data: dict = {
@@ -46,8 +46,8 @@ class TestDatabase:
         assert success
         assert data in returned_data
         
-    def test_update(self, tmp_database):
-        db: Database = tmp_database
+    def test_update(self, account_database):
+        db: Database = account_database
         assert db.initialized()
         
         lola: dict = {
@@ -78,8 +78,8 @@ class TestDatabase:
         assert candy in returned_data
         assert data in returned_data
         
-    def test_delete(self, tmp_database):
-        db: Database = tmp_database
+    def test_delete(self, account_database):
+        db: Database = account_database
         assert db.initialized()
         
         lola: dict = {
