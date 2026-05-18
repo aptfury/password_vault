@@ -13,9 +13,9 @@ from ..configs.models import AccountModel, PasswordModel, VaultModel
 
 # ------------ class ------------ #
 class AuthService:
-    def __init__(self, session: SessionService):
-        self.account: AccountRepo = AccountRepo()
-        self.vault: VaultRepo = VaultRepo()
+    def __init__(self, session: SessionService, account_repo: AccountRepo, vault_repo: VaultRepo):
+        self.account: AccountRepo = account_repo
+        self.vault: VaultRepo = vault_repo
         self.session: SessionService = session
         self.utils: SecurityUtilities = SecurityUtilities()
 
@@ -36,7 +36,7 @@ class AuthService:
         # create vault model
         user_vault: VaultModel = VaultModel(
             _id=user_account.id,
-            vault_salt=salt
+            salt=salt
         )
         
         # create account and vault
