@@ -70,4 +70,5 @@ Choose from the menu options below:
     else:
         raise ValueError(f'{option} is not an available menu option.')
     
-main()
+if __name__ == '__main__':
+    main()
