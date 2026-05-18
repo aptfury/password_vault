@@ -19,6 +19,9 @@ from src.app.services.auth_service import AuthService
 from src.app.services.vault_service import VaultService
 from src.app.services.account_service import AccountService
 from src.app.utilities.security_utilities import SecurityUtilities
+from src.app.controllers.account_controller import AccountController
+from src.app.controllers.vault_controller import VaultController
+from src.app.controllers.system_controller import SystemController
 
 # ------------ configs ------------ #
 pytest_plugins = [
@@ -125,3 +128,33 @@ def vault_service(session, auth, vault_repo):
     service: VaultService = VaultService(session, auth, vault_repo)
     
     return service
+
+# ------------ account controller ------------ #
+@pytest.fixture
+def account_controller(session, auth, account_service) -> AccountController:
+    ctrl: AccountController = AccountController(session, auth, account_service)
+    return ctrl
+
+# ------------ vault controller ------------ #
+@pytest.fixture
+def vault_controller(session, auth, vault_service) -> VaultController:
+    ctrl: VaultController = VaultController(session, auth, vault_service)
+    return ctrl
+
+# ------------ system controller ------------- #
+@pytest.fixture()
+def system_controller(session, auth, account_repo, vault_repo, account_service, vault_service, account_controller, vault_controller, account_database, vault_database, monkeypatch) -> SystemController:
+    ctrl: SystemController = SystemController()
+    
+    monkeypatch.setattr(ctrl, 'session', session)
+    monkeypatch.setattr(ctrl, 'auth', auth)
+    monkeypatch.setattr(ctrl, 'account_repo', account_repo)
+    monkeypatch.setattr(ctrl, 'vault_repo', vault_repo)
+    monkeypatch.setattr(ctrl, 'account_service', account_service)
+    monkeypatch.setattr(ctrl, 'vault_service', vault_service)
+    monkeypatch.setattr(ctrl, 'account_controller', account_controller)
+    monkeypatch.setattr(ctrl, 'vault_controller', vault_controller)
+    monkeypatch.setattr(ctrl, 'account_database', account_database)
+    monkeypatch.setattr(ctrl, 'vault_database', vault_database)
+    
+    return ctrl
