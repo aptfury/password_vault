@@ -40,18 +40,15 @@ class AccountController:
                     raise KeyError('[ACCOUNT_CONTROLLER_NAV] 3 invalid menu options in a row')
                 
         if res == '1':
-            # todo - update when system controller established
-            pass
+            return res
         elif res == '2':
             self.view_account()
         elif res == '3':
             self.update_account()
         elif res == '4':
-            # todo - update when system controller established
-            pass
+            return res
         elif res == '9':
-            # todo - update when system controller established
-            self.delete_account()
+            return res
     
     def view_account(self) -> None:
         """Returns a summary of user account info
@@ -109,17 +106,10 @@ class AccountController:
     def delete_account(self):
         """Deletes the user account from the database
         """     
-        confirm: str = input('This action is permanent. Please type CONFIRM to complete this action: ')
+        deleted: bool = self.service.delete_account(actor='user')
         
-        if not confirm == 'CONFIRM':
-            print('Action terminated.')
-            self.account_navigation()   
-            
+        if not deleted:
+            print('Account could not be deleted at this time.')
+            self.account_navigation()
         else:
-            deleted: bool = self.service.delete_account(actor='user')
-            
-            if not deleted:
-                print('Account could not be deleted at this time.')
-                self.account_navigation()
-            else:
-                return
+            return deleted

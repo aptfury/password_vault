@@ -48,14 +48,11 @@ class VaultController:
         elif res == '4':
             self.password_navigation()
         elif res == '5':
-            # todo - update when system controller established
-            pass
+            return res
         elif res == '6':
-            # todo - update when system controller established
-            pass
+            return res
         elif res == '9':
-            # todo - update when system controller established
-            pass
+            return res
     
     def password_navigation(self):
         """Helps the user navigate through menu.
@@ -77,7 +74,7 @@ class VaultController:
                 print(f'[INVALID OPTION] {res} is not a valid menu option. (REMAINING ATTEMPTS: {remaining} of 3).')
                 
                 if remaining <= 0:
-                    raise KeyError('[VAULT_CONTROLLER_NAV] 3 invalid menu options in a row')
+                    raise KeyError('[PASSWORD_CONTROLLER_NAV] 3 invalid menu options in a row')
                 
         if res == '1':
             self.edit_password()
@@ -86,11 +83,9 @@ class VaultController:
         elif res == '3':
             self.vault_navigation()
         elif res == '4':
-            # todo - update when system controller established
-            pass
+            return res
         elif res == '5':
-            # todo - update when system controller established
-            pass
+            return res
         elif res == '9':
             self.delete_all_passwords()
         
@@ -178,13 +173,87 @@ class VaultController:
         self.vault_navigation()
     
     def edit_password(self):
-        pass
+        """Edits a stored password
+        """        
+        id: str = input('PASSWORD ID: ')
+        key: str = ''
+        keys: list = ['id', 'website', 'username', 'password']
+        
+        for k in keys:
+            res: str = input(f'Update {k} (y/n)?:')
+            
+            if res.lower() == 'y':
+                key = k
+                break
+
+        if key == '':
+            print('Valid key not chosen.')
+            self.vault_navigation()
+            
+        value: str = input(f'Find for {key}: ')
+
+        if key == 'password':
+            key = '_password'
+            
+        success: bool | None = self.service.edit_password(id, key, value)
+        
+        if success is None:
+            print('Password could not be found.')
+            
+        elif success:
+            print('Password updated!')
+            
+        else:
+            print('Password could not be updated.')
+            
+        self.password_navigation()
     
     def delete_password(self):
-        pass
+        """Deletes a stored password
+        """        
+        id: str = input('PASSWORD ID: ')
+        confirm: str = input('Type CONFIRM to delete password: ')
+        
+        if not confirm == 'CONFIRM':
+            self.password_navigation()
+            
+        deleted: bool | None = self.service.delete_password(id)
+        
+        if deleted is None:
+            print('Password could not be found.')
+        
+        elif deleted:
+            print('Password deleted!')
+        
+        else:
+            print('Password could not be deleted.')
+            
+        self.password_navigation()
     
     def delete_all_passwords(self):
-        pass
+        confirm: str = input('Type CONFIRM to delete all passwords: ')
+        
+        if not confirm == 'CONFIRM':
+            self.password_navigation()
+            
+        deleted: bool | None = self.service.delete_all_passwords()
+        
+        if deleted is None:
+            print('There were no passwords to delete.')
+        elif deleted:
+            print('Passwords deleted!')
+        else:
+            print('Passwords could not be deleted.')
+            
+        self.password_navigation()
     
     def delete_vault(self):
-        pass
+        """Deletes entire vault.
+        """        
+        deleted: bool = self.service.delete_vault(actor='user')
+        
+        if not deleted:
+            print('Vault could not be deleted at this time.')
+            self.vault_navigation()
+        else:
+            return deleted

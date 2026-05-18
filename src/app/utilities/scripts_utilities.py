@@ -65,7 +65,7 @@ class ScriptsUtilities:
         (6) Log Out
         
         -- DANGER --
-        (9) Delete Vault
+        (9) Delete Vault - Will Delete Account
         '''
         
         print(script)
