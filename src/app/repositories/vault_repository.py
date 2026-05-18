@@ -13,12 +13,9 @@ from ..configs import (
 )
 
 # ------------ class ------------ #
-app_dir: Path = Path(__file__).resolve().parent.parent
-db_dir: Path = app_dir / 'database'
-db_file: Path = db_dir / 'vaults.json'
 class VaultRepo(IRepository[VaultModel]):
-    def __init__(self):
-        self.db: Database = Database(db_path=db_file)
+    def __init__(self, database: Database):
+        self.db: Database = database
         self.is_connected = self.db.initialized()
         
     def create(self, data: VaultModel) -> bool:
