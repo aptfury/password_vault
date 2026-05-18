@@ -24,26 +24,17 @@ class AccountService:
         
         return
         
-    def view_account(self) -> None:
+    def view_account(self) -> str:
         '''Displays the non-protected user account information.'''
         
         self.logged_in()
         
-        account: AccountModel = self.repo.get('_id', self.session.id)
+        account: AccountModel = self.repo.get('_id', self.session.id) or None
         
-        user_view: str = f'''
-        ------------------------------------
-                USER ACCOUNT DETAILS
-        ------------------------------------
+        if account is None:
+            return None, None, None
         
-        USERNAME: {account.username}
-        EMAIL: {account.email}
-        CREATED: {account.created}
-        '''
-        
-        print(user_view)
-        
-        return
+        return account.username, account.email, account.created
     
     def update_account(self, updates: dict) -> bool:
         """Updates account information based on user input
@@ -58,14 +49,7 @@ class AccountService:
         changed: AccountModel = account.model_copy(deep=True)
         
         for key, value in updates.items():
-            if key == '_id':
-                print('User id cannot be changed.')
-                
-            if key == 'created':
-                print('Account creation date cannot be changed.')
-            
-            if not key == '_id' and not key == 'created':
-                setattr(changed, key, value)
+            setattr(changed, key, value)
         
         if not account == changed:
             updated: bool = self.repo.update('_id', self.session.id, changed)
