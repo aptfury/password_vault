@@ -6,9 +6,7 @@ DESCRIPTION: Test cases for account service
 
 # ------------ imports ------------ #
 import pytest
-from src.app.configs.models import AccountModel
 from src.app.services.auth_service import AuthService
-from src.app.services.session_service import SessionService
 from src.app.services.account_service import AccountService
 
 # ------------ class ------------ #
