@@ -10,8 +10,8 @@ from src.app.repositories.vault_repository import VaultRepo
 
 # ------------ class ------------ #
 class TestVaultRepository:
-    def test_create(self, vault_repo, gen_vault):
-        vault: VaultModel = gen_vault()
+    def test_create(self, vault_repo, generate_user):
+        _, vault = generate_user()
         repo: VaultRepo = vault_repo
         repo.db.initialized()
         
@@ -19,8 +19,8 @@ class TestVaultRepository:
         
         assert success
         
-    def test_get(self, vault_repo, gen_vault):
-        vault: VaultModel = gen_vault()
+    def test_get(self, vault_repo, generate_user):
+        _, vault = generate_user()
         repo: VaultRepo = vault_repo
         repo.db.initialized()
         
@@ -32,8 +32,8 @@ class TestVaultRepository:
         
         assert vault == res
         
-    def test_get_id(self, vault_repo, gen_vault):
-        vault: VaultModel = gen_vault()
+    def test_get_id(self, vault_repo, generate_user):
+        _, vault = generate_user()
         repo: VaultRepo = vault_repo
         repo.db.initialized()
         
@@ -45,8 +45,8 @@ class TestVaultRepository:
         
         assert res == vault.id
         
-    def test_update(self, vault_repo, gen_vault):
-        vault: VaultModel = gen_vault()
+    def test_update(self, vault_repo, generate_user):
+        _, vault = generate_user()
         repo: VaultRepo = vault_repo
         repo.db.initialized()
         
@@ -54,14 +54,14 @@ class TestVaultRepository:
         
         assert success
         
-        vault_two: VaultModel = gen_vault()
+        _, vault_two = generate_user()
         
         success: bool = repo.update('_id', vault.id, vault_two)
         
         assert success
         
-    def test_delete(self, vault_repo, gen_vault):
-        vault: VaultModel = gen_vault()
+    def test_delete(self, vault_repo, generate_user):
+        _, vault = generate_user()
         repo: VaultRepo = vault_repo
         repo.db.initialized()
         
