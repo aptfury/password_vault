@@ -16,6 +16,7 @@ from src.app.repositories.account_repository import AccountRepo
 from src.app.configs.models import AccountModel, PasswordModel, VaultModel, EntryModel
 from src.app.services.session_service import SessionService
 from src.app.services.auth_service import AuthService
+from src.app.services.vault_service import VaultService
 from src.app.services.account_service import AccountService
 from src.app.utilities.security_utilities import SecurityUtilities
 
@@ -115,5 +116,12 @@ def auth(session, account_repo, vault_repo) -> AuthService:
 @pytest.fixture
 def account_service(session, auth, account_repo):
     service: AccountService = AccountService(session, auth, account_repo)
+    
+    return service
+
+# ------------ vault service ------------ #
+@pytest.fixture
+def vault_service(session, auth, vault_repo):
+    service: VaultService = VaultService(session, auth, vault_repo)
     
     return service
