@@ -12,7 +12,6 @@ import secrets
 
 from cryptography.fernet import Fernet
 from ..configs.models import PasswordModel
-from ..services import SessionService
 
 # ------------ class ------------ #
 class SecurityUtilities:
