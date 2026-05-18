@@ -39,6 +39,7 @@ class VaultService:
         self.auth: AuthService = auth_service
         
         # ------ user session ------ #
+        self.name: str = None
         self.vault_id: str = None
         
     def create_vault(self, user: AccountModel) -> None:
@@ -64,6 +65,7 @@ class VaultService:
             if self.vault_id is None:
                 user: AccountModel = self.account_repo.get_one_where('name', name)
                 self.vault_id = user.password.vault_id
+                self.name = name
         else:
             raise PermissionError('ACCESS_FORBIDDEN: If this is an error, please close the application and log in again.')
         
@@ -172,14 +174,17 @@ main menu > vault menu
         
         if saved:
             print('Password added to vault!')
-            print(f'PASSWORD ENTRY: {json.dumps(entry.model_dump(by_alias=True, mode='json'), indent=4)}')
-            return saved
+            self.vault_menu(self.name)
         else:
             raise SystemError('Password could not be saved. Please try again later.')
         
     def find_password(self) -> None:
         user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
-        look_up_options: list = ['id', 'name', 'website', 'username', 'password']
+        look_up_options: list = ['id', 'name', 'website', 'username', 'password']        
+        
+        if len(user_vault.vault) <= 0:
+            print('Could not find any passwords.')
+            self.vault_menu(self.name)
         
         print('You can look up your password using its ID, Name, Website, Username, or the Password itself.')
         look_up: str = input('Look up by: ')
@@ -236,11 +241,16 @@ password: {('*' * len(result.login.password)) if reveal_pass == 'n' else result.
 ===============================
 '''
             print(template)
+            self.vault_menu(self.name)
             
-        return
             
     def view_passwords(self) -> None:
         user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
+        
+        if len(user_vault.vault) <= 0:
+            print('You do not have any stored passwords')
+            self.vault_menu(self.name)
+        
         reveal_pass: str = input('Reveal password [y/n]?: ')
         
         for result in user_vault.vault:
@@ -257,6 +267,8 @@ password: {('*' * len(result.login.password)) if reveal_pass == 'n' else result.
 ===============================
 '''
             print(template)
+            
+            self.vault_menu(self.name)
     
     def manage_passwords(self) -> None | str:
         menu_options: str = f'''
@@ -282,7 +294,7 @@ vault menu > password manager
         elif option == '3':
             self.delete_vault()
         elif option == '4':
-            return 'back'
+            self.vault_menu(self.name)
         elif option == '5':
             return 'log out'
         else:
@@ -292,6 +304,11 @@ vault menu > password manager
     # todo - create bulk edit
     def edit_password(self) -> None:
         user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
+        
+        if len(user_vault.vault) <= 0:
+            print('No passwords available.')
+            self.manage_passwords()
+        
         pass_id: str = input('Enter the ID of the password: ')
         
         target: VaultEntryModel = None
@@ -362,13 +379,17 @@ password: {target_copy.login.password}
             
             if not updated:
                 raise SystemError('Update failed; Please try again later.')
-            return updated
-        else:
-            return
+            
+        self.manage_passwords()
         
     # todo - create bulk delete
     def delete_password(self) -> None:
         user_vault: VaultModel = self.repo.get_by_id(self.vault_id)
+        
+        if len(user_vault.vault) <= 0:
+            print('No passwords available to delete.')
+            self.manage_passwords()
+        
         delete_id: str = input('Password ID: ')
         
         if delete_id == '':
@@ -380,6 +401,8 @@ password: {target_copy.login.password}
             
         self.repo.update_one_where(user_vault, '_id', self.vault_id)
         
+        self.manage_passwords()
+        
     # todo - create test case
     def delete_vault(self) -> None:
         confirm: str = input('Please confirm that you would like to delete the entire vault and all passwords within the vault [CONFIRM/DENY]: ')
@@ -390,9 +413,6 @@ password: {target_copy.login.password}
             if not deleted:
                 raise SystemError('Ran into an error deleting the vault.')
             
-            return
-        else:
-            return
         
     def logout(self) -> None:
         self.vault_id = None

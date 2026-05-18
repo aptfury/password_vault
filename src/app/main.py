@@ -58,11 +58,14 @@ Select an option to get started:
         return main()
     
     elif selection == '2':
-        res: str | None = accounts.account_menu()
+        res: bool | None = accounts.login()
         
-        if res == 'log out':
-            res = None
-            return main()
+        if res:
+            acc_menu: str | None = accounts.account_menu()
+            
+            if acc_menu == 'log out':
+                acc_menu = None
+                return main()
     
     elif selection == '3':
         print('\nThanks for stopping by!')

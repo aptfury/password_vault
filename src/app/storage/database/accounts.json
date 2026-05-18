@@ -1,0 +1,14 @@
+[
+    {
+        "_id": "ed321674-8610-4223-a2c0-6e0be435464e",
+        "name": "blake",
+        "email": "blake.lola@gmail.com",
+        "password": {
+            "auth_salt": "tumb3y7RxSM/Ivw8ArZeovwsG2yjRkf4Bn3hV0jsbZc=",
+            "auth_hash": "FPdfQCHLFVPUpcSgM620/ie1DLvFklwED3h8rWXODes=",
+            "vault_id": "019e39f1-b1f1-7334-b62f-2a5a8b488dbb",
+            "vault_salt": "ObqMy2d3viau1ayIAJwzwRQ0DO2wBrzTrkJrR2LdCmY="
+        },
+        "created": "2026-05-18T03:16:41.585930"
+    }
+]

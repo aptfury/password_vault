@@ -167,7 +167,7 @@ class AccountService:
                 print(f'Welcome back, {self.name}!')
                 print(f'user_id: {self._id} || session_id: {self.session_id}')
                 
-                return self.session_id, self.name, self._id
+            return logged_in
 
         
         except TimeoutError:
@@ -204,19 +204,16 @@ What would you like to do?
             elif vault_nav == 'log out':
                 self.logout()
                 return 'log out'
-            return
         elif nav_choice == '2':
             self.view_account()
-            return
         elif nav_choice == '3':
             self.update_account()
-            return
         elif nav_choice == '4' or nav_choice == '5':
             self.logout()
             return 'log out'
         else:
             print('Invalid selection.')
-            return self.account_menu()
+            self.account_menu()
         
     def view_account(self) -> None:
         user: AccountModel = self.repo.get_one_where('name', self.name)

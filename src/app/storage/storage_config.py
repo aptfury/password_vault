@@ -88,7 +88,8 @@ class StorageConfig:
 
         # create database file if valid and none
         if not db.exists() or not db.is_file():
-            db.touch(exist_ok=True)
+            with open(db, 'w', encoding='utf-8') as file:
+                json.dump([], file, indent=4)
 
         # only return db if path to db intact
         if db_dir.exists() and db.exists():
