@@ -5,6 +5,7 @@ DESCRIPTION: The main script.
 '''
 
 # ------------ imports ------------ #
+import sys
 from pathlib import Path
 from .configs import Database
 from .repositories import AccountRepo, VaultRepo
@@ -47,6 +48,26 @@ account_repo: AccountRepo = AccountRepo(database=account_database)
 
 # ------------ main program ------------ #
 def main():
-    pass
+    greeting: str = '''
+Welcome to Password Vault!
 
+Choose from the menu options below:
+
+(1) Create Account
+(2) Log In
+(3) Exit    
+'''
+    print(greeting)
+    option: str = input('MENU OPTION (1, 2, 3):')
+    
+    if option == '1':
+        print('Create account is in the works!')
+    elif option == '2':
+        print('Log in is in the worrks!')
+    elif option == '3':
+        print('Thank you for visiting!')
+        sys.exit()
+    else:
+        raise ValueError(f'{option} is not an available menu option.')
+    
 main()
