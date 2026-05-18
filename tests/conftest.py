@@ -23,24 +23,31 @@ pytest_plugins = [
     'tests.mockeries.mock_database'
 ]
 
-# ------------ fixtures ------------ #
+# ------------ database ------------ #
 @pytest.fixture
-def tmp_database(tmp_path) -> Database:
+def account_database(tmp_path) -> Database:
     test_path: Path = tmp_path / 'accounts.json'
+    database: Database = Database(db_path=test_path)
+    
+    return database
+
+@pytest.fixture
+def vault_database(tmp_path) -> Database:
+    test_path: Path = tmp_path / 'vaults.json'
     database: Database = Database(db_path=test_path)
     
     return database
 
 # ------------ account repo ------------ #
 @pytest.fixture
-def account_repo(tmp_database) -> AccountRepo:
-    repo: AccountRepo = AccountRepo(database=tmp_database)
+def account_repo(account_database) -> AccountRepo:
+    repo: AccountRepo = AccountRepo(database=account_database)
 
     return repo
 
 @pytest.fixture
-def vault_repo(tmp_database) -> VaultRepo:
-    repo: VaultRepo = VaultRepo(database=tmp_database)
+def vault_repo(vault_database) -> VaultRepo:
+    repo: VaultRepo = VaultRepo(database=vault_database)
 
     return repo
 
