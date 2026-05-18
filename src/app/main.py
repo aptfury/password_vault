@@ -40,11 +40,11 @@ def database_setup(name: str) -> Database:
 
 
 session: SessionService = SessionService()
-auth: AuthService = AuthService(session=session)
 vault_database: Database = database_setup('vaults')
 account_database: Database = database_setup('accounts')
 vault_repo: VaultRepo = VaultRepo(database=vault_database)
 account_repo: AccountRepo = AccountRepo(database=account_database)
+auth: AuthService = AuthService(session=session, account_repo=account_repo, vault_repo=vault_repo)
 
 # ------------ main program ------------ #
 def main():
