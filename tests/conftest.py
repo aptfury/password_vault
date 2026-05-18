@@ -16,6 +16,7 @@ from src.app.repositories.account_repository import AccountRepo
 from src.app.configs.models import AccountModel, PasswordModel, VaultModel, EntryModel
 from src.app.services.session_service import SessionService
 from src.app.services.auth_service import AuthService
+from src.app.services.account_service import AccountService
 from src.app.utilities.security_utilities import SecurityUtilities
 
 # ------------ configs ------------ #
@@ -105,8 +106,14 @@ def session() -> SessionService:
 
 # ------------ auth service ------------ #
 @pytest.fixture
-def auth(session, account_repo, vault_repo, security, monkeypatch) -> AuthService:
+def auth(session, account_repo, vault_repo) -> AuthService:
     auth: AuthService = AuthService(session=session, account_repo=account_repo, vault_repo=vault_repo)
-    monkeypatch.setattr(auth, 'utils', security)
 
     return auth
+
+# ------------ account service ------------ #
+@pytest.fixture
+def account_service(session, auth, account_repo):
+    service: AccountService = AccountService(session, auth, account_repo)
+    
+    return service
