@@ -36,7 +36,8 @@ class AuthService:
         # create vault model
         user_vault: VaultModel = VaultModel(
             _id=user_account.id,
-            salt=salt
+            salt=salt,
+            vault=[]
         )
         
         # create account and vault
@@ -63,7 +64,7 @@ class AuthService:
         return is_valid_login
     
     def access_granted(self) -> bool:
-        return self.session.session_key is not None
+        return self.session.session_id is not None
     
     def logout(self) -> bool:
         self.session.logout()

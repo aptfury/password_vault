@@ -12,7 +12,7 @@ from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, computed_field
 
-# ------------ helper ------------ #
+# ------------ helpers ------------ #
 def nano_id() -> str:
     alphabet: str = string.digits
     nano_id: str = ''
@@ -41,7 +41,7 @@ class PasswordModel(BaseModel):
 
 # ------------ vault ------------ #
 class VaultModel(BaseModel):
-    id: str = Field(alias='_id', default_factory=lambda: str(uuid4()))
+    id: str = Field(alias='_id')
     salt: str
     vault: list = Field(default=[])
 
