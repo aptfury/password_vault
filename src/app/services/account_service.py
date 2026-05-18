@@ -8,7 +8,7 @@ DESCRIPTION: Services for managing accounts
 from .auth_service import AuthService
 from ..repositories import AccountRepo
 from .session_service import SessionService
-from ..configs.models import AccountModel, PasswordModel
+from ..configs import AccountModel
 
 # ------------ class ------------ #
 class AccountService:
