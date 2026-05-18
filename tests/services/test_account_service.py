@@ -84,3 +84,23 @@ class TestAccountService:
         captured = capsys.readouterr()
         
         assert 'UPDATE SUCCESSFUL!' in captured.out
+        
+    def test_delete_account(self, account_service, auth, generate_user):
+        service: AccountService = account_service
+        auth: AuthService = auth
+
+        user: dict = generate_user()
+        username: str = user['account'].username
+        password: str = user['raw_password']
+        email: str = user['account'].email
+        
+        auth.create_user(username, password, email)
+        auth.login(username, password)
+        
+        deleted: bool = service.delete_account()
+        
+        assert deleted
+
+        with pytest.raises(Exception) as exec_info:
+            service.repo.get('_id', service.session.id)
+            assert exec_info

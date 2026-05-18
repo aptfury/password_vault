@@ -45,7 +45,7 @@ class AccountService:
         
         return
     
-    def update_account(self, updates: dict) -> None:
+    def update_account(self, updates: dict) -> bool:
         """Updates account information based on user input
 
         Args:
@@ -70,11 +70,24 @@ class AccountService:
         if not account == changed:
             updated: bool = self.repo.update('_id', self.session.id, changed)
         
-            if updated:
-                self.session.username = changed.username
-                print('UPDATE SUCCESSFUL!')
-                
+            self.session.username = changed.username
+
+            return updated
         else:
-            print('No changes were made, update cancelled.')
+            print('No changes made, update stopped.')
+            return False
+    
+    def delete_account(self, actor: str = 'system') -> bool:
+        """Deletes the user's account
+
+        Args:
+            actor (str, optional): Who is deleting the account. Defaults to 'system'.
+
+        Returns:
+            bool: If the account was successfully deleted
+        """        
+        if actor == 'user':
+            self.logged_in()
             
-        return
+        deleted: bool = self.repo.delete('_id', self.session.id)
+        return deleted
