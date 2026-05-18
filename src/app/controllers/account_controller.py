@@ -20,7 +20,7 @@ class AccountController:
     def account_navigation(self):
         """Helps the user navigate through menu.
         """   
-        self.service.logged_in()
+        # self.service.logged_in()
         
         nav: list = ['1', '2', '3', '4', '9']
         

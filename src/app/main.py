@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 from .configs import Database
 from .repositories import AccountRepo, VaultRepo
-from .services import AuthService, SessionService
+from .services import AuthService, SessionService, AccountService, VaultService
+from .controllers import AccountController, VaultController, SystemController
 
 # ------------ configs ------------ #
 def database_setup(name: str) -> Database:
@@ -45,6 +46,11 @@ account_database: Database = database_setup('accounts')
 vault_repo: VaultRepo = VaultRepo(database=vault_database)
 account_repo: AccountRepo = AccountRepo(database=account_database)
 auth: AuthService = AuthService(session=session, account_repo=account_repo, vault_repo=vault_repo)
+account_service: AccountService = AccountService(session, auth, account_repo)
+vault_service: VaultService = VaultService(session, auth, vault_repo)
+account: AccountController = AccountController(session, auth, account_service)
+vault: VaultController = VaultController(session, auth, vault_service)
+system: SystemController = SystemController()
 
 # ------------ main program ------------ #
 def main():
@@ -61,9 +67,15 @@ Choose from the menu options below:
     option: str = input('MENU OPTION (1, 2, 3):')
     
     if option == '1':
-        print('Create account is in the works!')
+        created: bool = system.create_account()
+        
     elif option == '2':
-        print('Log in is in the worrks!')
+        username: str = input('\nUSERNAME: ')
+        password: str = input('\nPASSWORD: ')
+        
+        logged_in = auth.login(username, password)
+        
+        nav = account.account_navigation()
     elif option == '3':
         print('Thank you for visiting!')
         sys.exit()

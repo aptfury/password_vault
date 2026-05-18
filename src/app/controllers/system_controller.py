@@ -66,9 +66,9 @@ class SystemController:
                     raise KeyError('[MAIN_CONTROLLER_NAV] 3 invalid menu options in a row')
                 
         if res == '1':
-            pass # create account
+            self.log_in()
         if res == '2':
-            pass # log in
+            self.create_account()
         if res == '3':
             print('Goodbye!')
             sys.exit()
@@ -84,10 +84,11 @@ class SystemController:
         
         if created:
             print('Account created! Please log in to continue.')
+            print(created)
+            return created
         else:
             print('Account could not be created at this time.')
-            
-        self.main_menu()
+            return created
         
     def log_in(self):
         """Logs into an account.
@@ -97,12 +98,14 @@ class SystemController:
         
         logged_in: bool = self.auth.login(username, password)
         
-        if logged_in:
-            # todo - update to nav cycle
-            self.account_controller.account_navigation()
-        else:
-            print('Incorrect username or password.')
-            self.main_menu()
+        return logged_in
+        
+        # if logged_in:
+        #     # todo - update to nav cycle
+        #     self.account_controller.account_navigation()
+        # else:
+        #     print('Incorrect username or password.')
+        #     self.main_menu()
             
     def cycle_account(self):
         nav: str = self.account_controller.account_navigation()
@@ -139,10 +142,12 @@ class SystemController:
         nav: str = self.vault_controller.password_navigation()
         
         # to accounts #
-        self.cycle_account()
+        if nav == '4':
+            self.cycle_account()
         
         # log out #
-        self.logout()
+        elif nav == '5':
+            self.logout()
 
     def logout(self):
         """Logs the user out

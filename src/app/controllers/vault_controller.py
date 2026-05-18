@@ -20,7 +20,7 @@ class VaultController:
     def vault_navigation(self):
         """Helps the user navigate through menu.
         """   
-        self.service.logged_in()
+        # self.service.logged_in()
         
         nav: list = ['1', '2', '3', '4', '5', '6', '9']
         
