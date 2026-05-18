@@ -1,25 +1,8 @@
 [
     {
-        "_id": "019e39f1-b1f1-7334-b62f-2a5a8b488dbb",
-        "user_id": "ed321674-8610-4223-a2c0-6e0be435464e",
-        "created": "2026-05-18T03:16:41.612766",
+        "_id": "019e3bd0-5040-796c-b69e-12561ca64621",
+        "user_id": "52b646b7-75dd-487e-a6e7-141708996014",
+        "created": "2026-05-18T11:59:28.351817",
         "vault": []
-    },
-    {
-        "_id": "019e3bb7-d739-70a1-bbdb-cb0b147d375b",
-        "user_id": "5e00306b-e39e-4e84-8c1f-07422d138780",
-        "created": "2026-05-18T11:32:44.497046",
-        "vault": [
-            {
-                "_id": "TcbTa0XnjDtycdf6",
-                "name": "Password",
-                "website": "Password",
-                "login": {
-                    "username": "password",
-                    "password": "password"
-                },
-                "created": "2026-05-18T11:33:17.051189"
-            }
-        ]
     }
 ]
