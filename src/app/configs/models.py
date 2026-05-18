@@ -43,7 +43,7 @@ class PasswordModel(BaseModel):
 class VaultModel(BaseModel):
     id: str = Field(alias='_id')
     salt: str
-    vault: list = Field(default=[])
+    vault: list[EntryModel] = Field(default=[])
 
 # ------------ vault::entry ------------ #
 class EntryModel(BaseModel):
