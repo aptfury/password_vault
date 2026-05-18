@@ -42,7 +42,8 @@ class PasswordModel(BaseModel):
 # ------------ vault ------------ #
 class VaultModel(BaseModel):
     id: str = Field(alias='_id', default_factory=lambda: str(uuid4()))
-    vault: list
+    salt: str
+    vault: list = Field(default=[])
 
 # ------------ vault::entry ------------ #
 class EntryModel(BaseModel):
