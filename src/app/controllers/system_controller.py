@@ -26,23 +26,28 @@ class SystemController:
         # databases #
         self.account_database: Database = Database(db_path=account_dir)
         self.vault_database: Database = Database(db_path=vault_dir)
+        # databases #
         
         # repos #
         self.account_repo: AccountRepo = AccountRepo(database=self.account_database)
         self.vault_repo: VaultRepo = VaultRepo(database=self.vault_database)
+        # repos #
         
         # services #
         self.session: SessionService = SessionService()
         self.auth: AuthService = AuthService(session=self.session, account_repo=self.account_repo, vault_repo=self.vault_repo)
         self.account_service: AccountService = AccountService(session=self.session, auth=self.auth, repository=self.account_repo)
         self.vault_service: VaultService = VaultService(session=self.session, auth=self.auth, repository=self.vault_repo)
+        # services #
         
         # controllers #
         self.account_controller: AccountController = AccountController(session=self.session, auth=self.auth, service=self.account_service)
         self.vault_controller: VaultController = VaultController(session=self.session, auth=self.auth, service=self.vault_service)
+        # controllers #
         
         # utilities #
         self.scripts: ScriptsUtilities = ScriptsUtilities()
+        # utilities #
         
     def main_menu(self):
         """Guides the user through the main menu
@@ -84,11 +89,10 @@ class SystemController:
         
         if created:
             print('Account created! Please log in to continue.')
-            print(created)
-            return created
         else:
             print('Account could not be created at this time.')
-            return created
+            
+        self.main_menu()
         
     def log_in(self):
         """Logs into an account.
@@ -98,57 +102,12 @@ class SystemController:
         
         logged_in: bool = self.auth.login(username, password)
         
-        return logged_in
-        
-        # if logged_in:
-        #     # todo - update to nav cycle
-        #     self.account_controller.account_navigation()
-        # else:
-        #     print('Incorrect username or password.')
-        #     self.main_menu()
+        if logged_in:
+            self.account_controller.account_navigation()
+        else:
+            print('Incorrect username or password.')
+            self.main_menu()
             
-    def cycle_account(self):
-        nav: str = self.account_controller.account_navigation()
-        
-        # to vaults #
-        if nav == '1':
-            self.cycle_vault()
-        
-        # log out #
-        elif nav == '4':
-            self.logout()
-            
-        # delete #
-        elif nav == '9':
-            self.delete()
-
-    def cycle_vault(self):
-        nav: str = self.vault_controller.vault_navigation()
-        
-        # to account #
-        if nav == '5':
-            self.cycle_account()
-        
-        # log out #
-        elif nav == '6':
-            self.logout()
-        
-        # delete #
-        elif nav == '9':
-            self.delete()
-        
-
-    def cycle_password(self):
-        nav: str = self.vault_controller.password_navigation()
-        
-        # to accounts #
-        if nav == '4':
-            self.cycle_account()
-        
-        # log out #
-        elif nav == '5':
-            self.logout()
-
     def logout(self):
         """Logs the user out
         """        
@@ -159,7 +118,7 @@ class SystemController:
             print('Goodbye!')
             
         self.auth.logout()
-        self.main_menu()
+        sys.exit()
     
     def delete(self):
         """Deletes the user account and vault.
@@ -177,4 +136,4 @@ class SystemController:
         self.logout()
         self.vault_controller.delete_vault()
         self.account_controller.delete_account()
-        self.main_menu()
+        sys.exit()

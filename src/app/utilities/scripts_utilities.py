@@ -5,93 +5,136 @@ DESCRIPTION: Contains the application scripts
 '''
 
 # ------------ imports ------------ #
+import os
+from functools import wraps
 
-
-# ------------ class ------------ #
+# ------------ utils ------------ #
 class ScriptsUtilities:
+    def __init__(self, ):
+        self.dashes: str = '-----------------------------------------'
+        self.dashes_length: int = len(self.dashes)
+        
     def main_menu(self) -> None:
-        script: str = '''
-        -------------------------
-                MAIN MENU
-        -------------------------
+        script: list = [
+            '-----------------------------------------',
+            '                MAIN MENU                ',
+            '-----------------------------------------',
+            'Select an option from the menu below:    ',
+            '(enter the # only; e.g.: 1)              ',
+            '                                         ',
+            '(1) Log In                               ',
+            '(2) Create Account                       ',
+            '(3) Exit                                 ',
+            '-----------------------------------------'
+        ]
         
-        Welcome to Password Vault!!
+        for line in script:
+            print(line)
+            
+        return
         
-        Select an option from the menu below:
-        
-        (1) Log In
-        (2) Create Account
-        (3) Exit
-        '''
-        
-        print(script)
     
     def account_menu(self, name: str) -> None:
-        script: str = f'''
-        ----------------------------
-                ACCOUNT MENU
-        ----------------------------
+        script: list = [
+            '-----------------------------------------',
+            '              ACCOUNT MENU               ',
+            '-----------------------------------------',
+            'Select an option from the meny below:    ',
+            '(enter the # only; e.g.: 1)              ',
+            '                                         ',
+            '(1) Access Vault                         ',
+            '(2) View Account                         ',
+            '(3) Edit Account                         ',
+            '(4) Log Out                              ',
+            '-----------------------------------------',
+            '           !!! D A N G E R !!!           ',
+            '-----------------------------------------',
+            '(0) Delete Account <- ALSO DELETES VAULT ',
+            '-----------------------------------------'
+        ]
         
-        Welcome back, {name}!
-        
-        Select an option from the menu below:
-        
-        (1) Access Password Vault
-        (2) View Account
-        (3) Edit Account
-        (4) Log Out
-        
-        -- DANGER --
-        (9) Delete Account
-        '''
-        
-        print(script)
+        for line in script:
+            print(line)
+            
+        return
     
     def vault_menu(self, name: str) -> None:
-        script: str = f'''
-        --------------------------
-                VAULT MENU
-        --------------------------
+        script: list = [
+            '-----------------------------------------',
+            '               VAULT  MENU               ',
+            '-----------------------------------------',
+            'Select an option from the menu below:    ',
+            '(enter the # only; e.g.: 1)              ',
+            '                                         ',
+            '(1) Add Password                         ',
+            '(2) Find Password                        ',
+            '(3) View All Passwords                   ',
+            '(4) Manage Passwords                     ',
+            '(5) Back                                 ',
+            '(6) Log Out                              ',
+            '-----------------------------------------',
+            '           !!! D A N G E R !!!           ',
+            '-----------------------------------------',
+            '(0) Delete Vault <- ALSO DELETES ACCOUNT ',
+            '-----------------------------------------'
+        ]
         
-        {name}'s Vault
+        for line in script:
+            print(line)
+            
+        return
         
-        Select an option from the menu below:
+    def password_manager_menu(self, name: str) -> None:
+        script: list = [
+            '-----------------------------------------',
+            '              PASSWORD MENU              ',
+            '-----------------------------------------',
+            'Select an option from the menu below:    ',
+            '(enter the # only; e.g.: 1)              ',
+            '                                         ',
+            '(1) Edit Password                        ',
+            '(2) Delete Password                      ',
+            '(3) Back                                 ',
+            '(5) Log Out                              ',
+            '-----------------------------------------',
+            '           !!! D A N G E R !!!           ',
+            '-----------------------------------------',
+            '(0) Clear Vault / Delete All Passwords   ',
+            '-----------------------------------------'
+        ]
         
-        (1) Add Password
-        (2) Find Password
-        (3) View All Passwords
-        (4) Manage Passwords
-        (5) Return to Account Menu
-        (6) Log Out
-        
-        -- DANGER --
-        (9) Delete Vault - Will Delete Account
-        '''
-        
-        print(script)
-        
-    def password_manager_menu(self) -> None:
-        script: str = '''
-        -------------------------------------
-                PASSWORD MANAGER MENU
-        -------------------------------------
-        
-        Select an option from the menu below:
-        
-        (1) Edit Password
-        (2) Delete Password
-        (3) Return to Vault Menu
-        (4) Return to Account Menu
-        (5) Log Out
-        
-        -- DANGER --
-        (9) Delete All Passwords - Will not delete vault
-        '''
-        
-        print(script)
+        for line in script:
+            print(line)
+            
+        return        
         
     def menu_option(self) -> str:
-        res: str = input('''
-        MENU OPTION (#): ''')
+        res: str = input('MENU OPTION: ')
         
         return res
+    
+    def custom_dash(self, l: int) -> str:
+        return f'|{'-' * l}|'
+    
+    def custom_sides(self, l: int) -> str:
+        return f'|{' ' * l}|'
+    
+    def custom_data(self, line: str, l: int) -> str:
+        spaces: int = l - (len(line) - 1)
+        return f'| {line}{' ' * spaces}|'
+    
+    def data_display(self, title: str, data: dict) -> str:
+        length: int = len(title)
+        title_length: int = self.dashes_length - (length + 6)
+        title: str = f'----- {title} {'-' * title_length}-'
+        
+        template: list = [
+            title
+        ]
+        
+        for k, v in data.items():
+            line: str = f'{k.upper()}: {v}'
+            data_line: str = self.custom_data(line, length)
+            template.append(data_line)
+            
+        template.append(self.custom_dash(length))

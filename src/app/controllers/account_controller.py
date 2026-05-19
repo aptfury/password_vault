@@ -55,9 +55,9 @@ class AccountController:
         """        
         username, email, created = self.service.view_account()
         
-        if any(username is None, email is None, created is None):
+        if username is None and email is None and created is None:
             print('User could not be found.')
-            self.account_navigation()
+            # self.account_navigation()
         
         user_view: str = f'''
         ------------------------------------
@@ -73,7 +73,7 @@ class AccountController:
         
         print('Returning to account menu')
         
-        self.account_navigation()
+        # self.account_navigation()
 
     def update_account(self) -> None:
         """Updates the user account
